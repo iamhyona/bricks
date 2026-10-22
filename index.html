@@ -153,7 +153,8 @@ const STAGES=[
 const MODES={easy:{life:5,mul:.5,spd:.85},normal:{life:3,mul:1,spd:1},hard:{life:2,mul:2,spd:1.2}};
 const ITEMS=[
  {k:'W',c:'#00e0ff',t:'WIDE'},{k:'M',c:'#c06bff',t:'MULTI'},{k:'L',c:'#ff4d6d',t:'LASER'},
- {k:'S',c:'#ffd23f',t:'SLOW'},{k:'2',c:'#ff9a3d',t:'×2'},{k:'+',c:'#ff6bd6',t:'LIFE'}];
+ {k:'S',c:'#ffd23f',t:'SLOW'},{k:'2',c:'#ff9a3d',t:'×2'},{k:'+',c:'#ff6bd6',t:'LIFE'},
+ {k:'N',c:'#a0a4ab',t:'SHORT',bad:1},{k:'F',c:'#ff2a2a',t:'FAST',bad:1}];
 
 const cv=$('cv'),x=cv.getContext('2d');
 let W=300,H=460,dpr=1;
@@ -182,7 +183,7 @@ function buildStage(){
     bricks.push({r,c,x:6+c*(bw+gap),y:top0+r*(bh+gap),w:bw,h:bh,t,hp:t==='S'?2:t==='X'?1e9:1,col:t==='C'?COLORS[ch]:t==='S'?'#c9d2dc':'#ffd23f',hit:0});
   }));
 }
-function speed(){ return (3.2+Math.min(2.6,(stageN-1)*0.28))*MODES[mode].spd*(effects.S?0.7:1); }
+function speed(){ return (3.2+Math.min(2.6,(stageN-1)*0.28))*MODES[mode].spd*(effects.S?0.7:1)*(effects.F?1.35:1); }
 function newBall(stuck=true){ return {x:pad.x,y:pad.y-6,vx:0,vy:0,r:4,stuck}; }
 function launch(){ for(const b of balls) if(b.stuck){ const a=(-60+Math.random()*30)*Math.PI/180; const s=speed(); b.vx=Math.sin(a+Math.PI/6)*s; b.vy=-Math.cos(a+Math.PI/6)*s; b.stuck=false; } }
 function hud(){
@@ -236,7 +237,7 @@ function loop(t){
 function update(k){
   const kv=(keys.ArrowLeft?-1:0)+(keys.ArrowRight?1:0); if(kv) pad.x=clampPad(pad.x+kv*6*k);
   const now=performance.now();
-  for(const e in effects) if(effects[e]<now){ delete effects[e]; if(e==='W') pad.w=padBase; if(e==='S') rescale(); }
+  for(const e in effects) if(effects[e]<now){ delete effects[e]; if(e==='W'||e==='N') pad.w=padBase; if(e==='S'||e==='F') rescale(); }
   // 레이저
   if(effects.L){ laserCD-=k; if(laserCD<=0){ laserCD=14; shots.push({x:pad.x-pad.w/2+4,y:pad.y-4},{x:pad.x+pad.w/2-4,y:pad.y-4}); beep(880,.04,'square',.025);} }
   for(const s of shots){ s.y-=7*k; for(const b of bricks){ if(s.y<b.y+b.h&&s.y>b.y&&s.x>b.x&&s.x<b.x+b.w){ hitBrick(b); s.dead=1; break; } } if(s.y<0)s.dead=1; }
@@ -291,17 +292,21 @@ function hitBrick(br){
   for(let i=0;i<8;i++) parts.push({x:br.x+br.w/2,y:br.y+br.h/2,vx:(Math.random()-.5)*3,vy:(Math.random()-.8)*2.5,l:24,c:br.col});
   if(Math.random()<(mode==='easy'?.2:.15)){
     let it=ITEMS[Math.floor(Math.random()*5)]; if(Math.random()<.08) it=ITEMS[5];
-    drops.push({x:br.x+br.w/2,y:br.y,k:it.k,c:it.c,t:it.t});
+    if(Math.random()<(mode==='hard'?.38:mode==='easy'?.22:.3)) it=ITEMS[6+Math.floor(Math.random()*2)]; // 나쁜 아이템
+    drops.push({x:br.x+br.w/2,y:br.y,k:it.k,c:it.c,t:it.t,bad:it.bad});
   }
 }
 function take(k){
-  tune([[660,0],[880,70],[1100,140]]);
-  const until=performance.now()+(k==='S'?9000:k==='L'?7000:k==='2'?10000:12000);
-  if(k==='W'){ pad.w=padBase*1.6; effects.W=until; pad.x=clampPad(pad.x); }
+  const bad=k==='N'||k==='F';
+  if(bad) tune([[400,0],[300,80],[200,160]]); else tune([[660,0],[880,70],[1100,140]]);
+  const until=performance.now()+(k==='S'?9000:k==='L'?7000:k==='2'?10000:k==='F'?8000:k==='N'?10000:12000);
+  if(k==='W'){ pad.w=padBase*1.6; effects.W=until; delete effects.N; pad.x=clampPad(pad.x); }
+  else if(k==='N'){ pad.w=padBase*.6; effects.N=until; delete effects.W; pad.x=clampPad(pad.x); }
+  else if(k==='F'){ effects.F=until; delete effects.S; rescale(); }
   else if(k==='M'){ const src=balls.find(b=>!b.stuck)||balls[0]; if(src.stuck) launch(); const s=Math.hypot(src.vx,src.vy)||speed();
     for(const d of[-25,25]){ const a=Math.atan2(src.vx,-src.vy)+d*Math.PI/180; balls.push({x:src.x,y:src.y,r:4,vx:Math.sin(a)*s,vy:-Math.cos(a)*s,stuck:false}); } }
   else if(k==='L'){ effects.L=until; }
-  else if(k==='S'){ effects.S=until; rescale(); }
+  else if(k==='S'){ effects.S=until; delete effects.F; rescale(); }
   else if(k==='2'){ effects['2']=until; }
   else if(k==='+'){ lives++; hud(); }
 }
@@ -342,7 +347,7 @@ function draw(){
   // 파편
   for(const p of parts){ x.globalAlpha=p.l/24; x.fillStyle=p.c; x.fillRect(p.x,p.y,2.5,2.5); } x.globalAlpha=1;
   // 아이템
-  for(const d of drops){ x.save(); x.shadowColor=d.c; x.shadowBlur=12; rr(d.x-14,d.y-6,28,12,6); x.strokeStyle=d.c; x.lineWidth=2; x.stroke(); x.fillStyle='rgba(0,0,0,.5)'; x.fill(); x.restore();
+  for(const d of drops){ x.save(); x.shadowColor=d.c; x.shadowBlur=12; rr(d.x-14,d.y-6,28,12,6); x.strokeStyle=d.c; x.lineWidth=2; if(d.bad) x.setLineDash([3,2]); x.stroke(); x.setLineDash([]); x.fillStyle='rgba(0,0,0,.5)'; x.fill(); x.restore();
     x.fillStyle=d.c; x.font='700 7px Silkscreen, monospace'; x.textAlign='center'; x.textBaseline='middle'; x.fillText(d.t,d.x,d.y+.5); }
   // 레이저 탄
   x.save(); x.shadowColor='#ff4d6d'; x.shadowBlur=8; x.fillStyle='#ffb3c1'; for(const s of shots) x.fillRect(s.x-1,s.y-6,2,7); x.restore();
