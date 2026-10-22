@@ -94,6 +94,8 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 .flash.go{animation:fl .9s}
 @keyframes fl{30%{box-shadow:inset 0 0 40px 10px rgba(125,255,176,.6)}}
 </style>
+<script>/* 카톡 등 인앱 브라우저: 실제 보이는 높이로 화면 맞춤 */(function(){var d=document.documentElement;function f(){d.style.setProperty('--app-h',window.innerHeight+'px')}f();addEventListener('resize',f);addEventListener('orientationchange',function(){setTimeout(f,300)});addEventListener('pageshow',f);setTimeout(f,250);setTimeout(f,1000)})();</script>
+<style>html,body{height:var(--app-h,100dvh)!important}</style>
 </head>
 <body>
 <div class="gb">
