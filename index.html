@@ -159,7 +159,7 @@ const ITEMS=[
 const cv=$('cv'),x=cv.getContext('2d');
 let W=300,H=460,dpr=1;
 let mode='normal',stageN=1,score=0,lives=3,bricks=[],balls=[],drops=[],shots=[],parts=[];
-let pad={x:150,w:56,h:8,y:0},padBase=56,state='title',effects={},laserCD=0,lastT=0,sound=true;
+let pad={x:150,tx:150,w:56,h:8,y:0},padBase=56,state='title',effects={},laserCD=0,lastT=0,sound=true;
 let bw,bh,top0=34,gap=3,lastWin=null;
 
 function resize(){
@@ -184,7 +184,8 @@ function buildStage(){
   }));
 }
 function speed(){ return (3.2+Math.min(2.6,(stageN-1)*0.28))*MODES[mode].spd*(effects.S?0.7:1)*(effects.F?1.35:1); }
-function newBall(stuck=true){ return {x:pad.x,y:pad.y-6,vx:0,vy:0,r:4,stuck}; }
+function newBall(stuck=true){ pad.tx=pad.x;
+   return {x:pad.x,y:pad.y-6,vx:0,vy:0,r:4,stuck}; }
 function launch(){ for(const b of balls) if(b.stuck){ const a=(-60+Math.random()*30)*Math.PI/180; const s=speed(); b.vx=Math.sin(a+Math.PI/6)*s; b.vy=-Math.cos(a+Math.PI/6)*s; b.stuck=false; } }
 function hud(){
   $('hStage').textContent=String(stageN).padStart(3,'0');
@@ -203,7 +204,7 @@ function addScore(n){ score+=Math.round(n*MODES[mode].mul*(effects['2']?2:1)); h
 /* 입력 */
 let drag=null;
 cv.addEventListener('pointerdown',e=>{ if(state!=='play')return; cv.setPointerCapture(e.pointerId);
-  drag={id:e.pointerId,sx:e.clientX,px:pad.x,moved:false,t:performance.now()};
+  drag={id:e.pointerId,sx:e.clientX,px:pad.tx,moved:false,t:performance.now()};
   if(e.pointerType==='mouse'){ movePadTo(e); } });
 cv.addEventListener('pointermove',e=>{
   if(state!=='play')return;
@@ -211,12 +212,12 @@ cv.addEventListener('pointermove',e=>{
   if(!drag||drag.id!==e.pointerId)return;
   const r=cv.getBoundingClientRect(); const dx=(e.clientX-drag.sx)*W/r.width;
   if(Math.abs(dx)>3) drag.moved=true;
-  pad.x=clampPad(drag.px+dx*1.15);
+  pad.tx=clampPad(drag.px+dx*1.15);
 });
 cv.addEventListener('pointerup',e=>{ if(!drag)return; const d=drag; drag=null;
   if(e.pointerType==='mouse'||!d.moved||performance.now()-d.t<180) launch(); });
 cv.addEventListener('pointercancel',()=>drag=null);
-function movePadTo(e){ const r=cv.getBoundingClientRect(); pad.x=clampPad((e.clientX-r.left)*W/r.width); }
+function movePadTo(e){ const r=cv.getBoundingClientRect(); pad.tx=clampPad((e.clientX-r.left)*W/r.width); }
 function clampPad(v){ return Math.max(pad.w/2+2,Math.min(W-pad.w/2-2,v)); }
 const keys={};
 addEventListener('keydown',e=>{ keys[e.key]=1; if(e.key===' '&&state==='play'){e.preventDefault();launch();} if((e.key==='p'||e.key==='Escape')&&(state==='play'||state==='pause')) togglePause(); });
@@ -235,7 +236,8 @@ function loop(t){
   draw(); requestAnimationFrame(loop);
 }
 function update(k){
-  const kv=(keys.ArrowLeft?-1:0)+(keys.ArrowRight?1:0); if(kv) pad.x=clampPad(pad.x+kv*6*k);
+  const kv=(keys.ArrowLeft?-1:0)+(keys.ArrowRight?1:0); if(kv) pad.tx=clampPad(pad.tx+kv*6*k);
+  pad.tx=clampPad(pad.tx); pad.x+=(pad.tx-pad.x)*Math.min(1,.5*k); if(Math.abs(pad.tx-pad.x)<.05) pad.x=pad.tx;
   const now=performance.now();
   for(const e in effects) if(effects[e]<now){ delete effects[e]; if(e==='W'||e==='N') pad.w=padBase; if(e==='S'||e==='F') rescale(); }
   // 레이저
@@ -251,7 +253,7 @@ function update(k){
   balls=balls.filter(b=>!b.dead);
   if(!balls.length){ lives--; hud(); beep(160,.3,'sawtooth',.06); if(lives<=0) return gameOver(); balls=[newBall()]; effects={}; pad.w=padBase; drops=[]; shots=[]; }
   // 아이템 낙하
-  for(const d of drops){ d.y+=1.6*k; if(d.y+6>pad.y&&d.y<pad.y+pad.h&&Math.abs(d.x-pad.x)<pad.w/2+10){ take(d.k); d.dead=1; } if(d.y>H)d.dead=1; }
+  for(const d of drops){ d.y+=1.6*k; if(d.y+9>pad.y&&d.y<pad.y+pad.h&&Math.abs(d.x-pad.x)<pad.w/2+14){ take(d.k); d.dead=1; } if(d.y>H)d.dead=1; }
   drops=drops.filter(d=>!d.dead);
   for(const p of parts){ p.x+=p.vx*k; p.y+=p.vy*k; p.vy+=.08*k; p.l-=k; }
   parts=parts.filter(p=>p.l>0);
@@ -300,8 +302,8 @@ function take(k){
   const bad=k==='N'||k==='F';
   if(bad) tune([[400,0],[300,80],[200,160]]); else tune([[660,0],[880,70],[1100,140]]);
   const until=performance.now()+(k==='S'?9000:k==='L'?7000:k==='2'?10000:k==='F'?8000:k==='N'?10000:12000);
-  if(k==='W'){ pad.w=padBase*1.6; effects.W=until; delete effects.N; pad.x=clampPad(pad.x); }
-  else if(k==='N'){ pad.w=padBase*.6; effects.N=until; delete effects.W; pad.x=clampPad(pad.x); }
+  if(k==='W'){ pad.w=padBase*1.6; effects.W=until; delete effects.N; pad.tx=clampPad(pad.tx); }
+  else if(k==='N'){ pad.w=padBase*.6; effects.N=until; delete effects.W; pad.tx=clampPad(pad.tx); }
   else if(k==='F'){ effects.F=until; delete effects.S; rescale(); }
   else if(k==='M'){ const src=balls.find(b=>!b.stuck)||balls[0]; if(src.stuck) launch(); const s=Math.hypot(src.vx,src.vy)||speed();
     for(const d of[-25,25]){ const a=Math.atan2(src.vx,-src.vy)+d*Math.PI/180; balls.push({x:src.x,y:src.y,r:4,vx:Math.sin(a)*s,vy:-Math.cos(a)*s,stuck:false}); } }
@@ -325,6 +327,21 @@ function gameOver(){
   show('ovOver'); dim(true);
 }
 
+/* 아이템 픽셀 아이콘 */
+const ICONS={
+ W:['.1.......1.','11.......11','11111111111','11.......11','.1.......1.'],
+ N:['1.........1','.1..111..1.','..1.111.1..','.1..111..1.','1.........1'],
+ M:['...111...','...111...','.........','111...111','111...111'],
+ L:['1.....1','1.....1','1.....1','.......','1111111','1111111'],
+ S:['1111111','.11111.','..111..','...1...','..111..','.11111.','1111111'],
+ '2':['1...1.111','.1.1....1','..1...111','.1.1..1..','1...1.111'],
+ '+':['.11.11.','1111111','1111111','.11111.','..111..','...1...'],
+ F:['1..1..1...','.1..1..1..','..1..1..1.','.1..1..1..','1..1..1...']};
+function icon(k,cx,cy,px,c){ const m=ICONS[k]; if(!m)return; const w=m[0].length*px,h=m.length*px;
+  x.save(); x.shadowColor=c; x.shadowBlur=6; x.fillStyle=k==='+'?c:'#fff';
+  m.forEach((row,r)=>[...row].forEach((v,i)=>{ if(v==='1') x.fillRect(Math.round((cx-w/2+i*px)*4)/4,Math.round((cy-h/2+r*px)*4)/4,px,px); }));
+  x.restore(); }
+
 /* 그리기 */
 function rr(X,Y,w,h,r){ x.beginPath(); x.roundRect(X,Y,w,h,r); }
 function draw(){
@@ -347,8 +364,8 @@ function draw(){
   // 파편
   for(const p of parts){ x.globalAlpha=p.l/24; x.fillStyle=p.c; x.fillRect(p.x,p.y,2.5,2.5); } x.globalAlpha=1;
   // 아이템
-  for(const d of drops){ x.save(); x.shadowColor=d.c; x.shadowBlur=12; rr(d.x-14,d.y-6,28,12,6); x.strokeStyle=d.c; x.lineWidth=2; if(d.bad) x.setLineDash([3,2]); x.stroke(); x.setLineDash([]); x.fillStyle='rgba(0,0,0,.5)'; x.fill(); x.restore();
-    x.fillStyle=d.c; x.font='700 7px Silkscreen, monospace'; x.textAlign='center'; x.textBaseline='middle'; x.fillText(d.t,d.x,d.y+.5); }
+  for(const d of drops){ x.save(); x.shadowColor=d.c; x.shadowBlur=14; rr(d.x-20,d.y-9,40,18,9); x.fillStyle='rgba(0,0,0,.55)'; x.fill(); x.strokeStyle=d.c; x.lineWidth=2; if(d.bad) x.setLineDash([3,2]); x.stroke(); x.setLineDash([]); x.restore();
+    icon(d.k,d.x,d.y,1.6,d.c); }
   // 레이저 탄
   x.save(); x.shadowColor='#ff4d6d'; x.shadowBlur=8; x.fillStyle='#ffb3c1'; for(const s of shots) x.fillRect(s.x-1,s.y-6,2,7); x.restore();
   // 패들
@@ -363,7 +380,7 @@ function draw(){
   // 남은 효과 표시
   const now=performance.now(); let ex=6;
   for(const k in effects){ const it=ITEMS.find(i=>i.k===k); if(!it)continue; const left=Math.ceil((effects[k]-now)/1000);
-    x.fillStyle=it.c; x.font='700 7px Silkscreen, monospace'; x.textAlign='left'; x.textBaseline='top'; x.fillText(it.t+' '+left,ex,6); ex+=46; }
+    icon(k,ex+8,11,1.1,it.c); x.fillStyle=it.c; x.font='700 8px Silkscreen, monospace'; x.textAlign='left'; x.textBaseline='middle'; x.fillText(left,ex+17,11.5); ex+=38; }
   if(state==='play'&&balls.some(b=>b.stuck)){ x.fillStyle='rgba(200,240,176,'+(.5+.5*Math.sin(now/250))+')'; x.font='700 9px Silkscreen, monospace'; x.textAlign='center'; x.fillText('TAP TO LAUNCH',W/2,pad.y-40); }
   if(state==='clear'){ x.save(); x.shadowColor='#7dffb0'; x.shadowBlur=20; x.fillStyle='#fff'; x.font='14px "Press Start 2P", monospace'; x.textAlign='center'; x.fillText('STAGE CLEAR',W/2,H/2); x.restore(); }
 }
@@ -416,7 +433,7 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 $('bRank').onclick=()=>{ if(state==='play') togglePause(); openRank(); };
 $('bRank2').onclick=openRank; $('bRank3').onclick=openRank;
 
-if(location.hash==='#test') window.__t={clear:()=>{bricks=bricks.filter(b=>b.t==='X')},die:()=>{lives=1;balls=[]},take,launch,st:()=>({state,stageN,score,lives,balls:balls.length,eff:Object.keys(effects)})};
+if(location.hash==='#test') window.__t={clear:()=>{bricks=bricks.filter(b=>b.t==='X')},die:()=>{lives=1;balls=[]},take,launch,drops:()=>{ITEMS.forEach((it,i)=>drops.push({x:30+i*34,y:H*.55,k:it.k,c:it.c,t:it.t,bad:it.bad}))},st:()=>({state,stageN,score,lives,balls:balls.length,eff:Object.keys(effects)})};
 resize(); hud(); requestAnimationFrame(loop);
 })();
 </script>
