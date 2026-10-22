@@ -37,12 +37,23 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .bezel{flex:1;min-height:0;display:flex;flex-direction:column;padding:8px;border-radius:10px;background:#101016;box-shadow:inset 0 0 0 1px rgba(255,255,255,.05)}
 .screen{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;padding:8px;border-radius:8px;position:relative;overflow:hidden;
   background:radial-gradient(130% 90% at 50% 40%,#12211a,#0a130e 80%);box-shadow:inset 0 0 0 1px rgba(120,200,110,.25),inset 0 0 40px rgba(0,0,0,.6)}
-.hud{display:flex;gap:6px}
 .box{flex:1;border:3px solid var(--gb);border-radius:9px;padding:6px 2px 7px;text-align:center;background:radial-gradient(120% 100% at 50% 40%,#13241a,#0d1a12);box-shadow:0 0 10px rgba(125,255,176,.08)}
 .box small{display:block;font:700 9px Silkscreen;color:var(--g2);letter-spacing:1px;margin-bottom:3px}
 .box span{font:700 16px Silkscreen;color:var(--g1);text-shadow:0 0 6px rgba(200,240,176,.55);white-space:nowrap}
 .box .hearts{color:#ff4d6d;text-shadow:0 0 6px #ff4d6d;font-family:Galmuri11,sans-serif;font-size:13px;letter-spacing:1px}
 .field{flex:1;min-height:0;position:relative;border-radius:6px;border:2px solid #2a4a32;box-shadow:0 0 14px rgba(125,255,176,.18),inset 0 0 14px rgba(125,255,176,.08);overflow:hidden}
+.hud{display:flex;gap:4px}
+.hud .box{flex:1 1 0;min-width:0;height:40px;border-width:2px;border-radius:8px;padding:0 2px;display:flex;flex-direction:row;gap:3px;align-items:center;justify-content:center}
+.hud .box.wide{flex:1.6 1 0}
+.hud .flag{font:13px Galmuri11,sans-serif!important;color:var(--g2)!important;text-shadow:none!important}
+.hud .box small{font-size:7px;letter-spacing:.5px;margin-bottom:4px}
+.hud .box span{font-size:14px}
+.hud .box .hearts{font-size:13px;letter-spacing:0}
+.btnb{color:var(--g1);background:#0f1c14;cursor:pointer}
+.btnb i{font-style:normal;font:700 15px Galmuri11,sans-serif;line-height:16px;color:var(--g1);text-shadow:0 0 6px rgba(200,240,176,.55)}
+.btnb:active,.btnb.on{background:#1b3324;box-shadow:0 0 10px rgba(125,255,176,.35)}
+.btnb[disabled]{opacity:.35}
+.btnb.off i{opacity:.4}
 canvas{display:block;width:100%;height:100%;touch-action:none}
 .ctl{display:flex;gap:6px}
 .ctl button{flex:1;height:34px;border:3px solid var(--gb);border-radius:9px;font:700 11px Silkscreen;letter-spacing:1px;color:var(--g1);background:#0f1c14}
@@ -83,14 +94,12 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
   <div class="lbl"><em></em>© 2026 PARK HYONA<em></em></div>
   <div class="bezel"><div class="screen" id="screen">
     <div class="hud">
-      <div class="box"><small>STAGE</small><span id="hStage">001</span></div>
-      <div class="box"><small>SCORE</small><span id="hScore">0</span></div>
-      <div class="box"><small>LIFE</small><span id="hLife" class="hearts">♥♥♥</span></div>
-    </div>
-    <div class="ctl">
-      <button id="bPause">PAUSE</button>
-      <button id="bSound" class="on">SOUND</button>
-      <button id="bRank">RANKING</button>
+      <div class="box"><span class="flag">⚑</span><span id="hStage">01</span></div>
+      <div class="box wide"><span id="hScore">0</span></div>
+      <div class="box"><span id="hLife" class="hearts">♥♥♥</span></div>
+      <button class="box btnb" id="bPause" aria-label="일시정지"><i>❚❚</i></button>
+      <button class="box btnb on" id="bSound" aria-label="소리"><i>♪</i></button>
+      <button class="box btnb" id="bRank" aria-label="랭킹"><i>♛</i></button>
     </div>
     <div class="field" id="field"><canvas id="cv"></canvas><div class="flash" id="flash"></div></div>
 
@@ -188,11 +197,11 @@ function newBall(stuck=true){ pad.tx=pad.x;
    return {x:pad.x,y:pad.y-6,vx:0,vy:0,r:4,stuck}; }
 function launch(){ for(const b of balls) if(b.stuck){ const a=(-60+Math.random()*30)*Math.PI/180; const s=speed(); b.vx=Math.sin(a+Math.PI/6)*s; b.vy=-Math.cos(a+Math.PI/6)*s; b.stuck=false; } }
 function hud(){
-  $('hStage').textContent=String(stageN).padStart(3,'0');
+  $('hStage').textContent=String(stageN).padStart(2,'0');
   $('hScore').textContent=score;
-  $('hLife').textContent=lives>5?'♥×'+lives:'♥'.repeat(Math.max(0,lives));
-  const s=$('hScore'),p=s.parentElement; s.style.fontSize='16px';
-  let f=16; while(s.scrollWidth>p.clientWidth-6&&f>8){f--;s.style.fontSize=f+'px'}
+  $('hLife').textContent=lives>3?'♥×'+lives:'♥'.repeat(Math.max(0,lives));
+  const s=$('hScore'),p=s.parentElement; s.style.fontSize='14px';
+  let f=14; while(s.scrollWidth>p.clientWidth-6&&f>8){f--;s.style.fontSize=f+'px'}
 }
 function startGame(m){
   mode=m; stageN=1; score=0; lives=MODES[m].life; effects={}; pad.w=padBase;
@@ -401,8 +410,8 @@ $('bRestart').onclick=()=>{hide('ovPause');startGame(mode)};
 function toMenu(){ ['ovPause','ovOver','ovRank'].forEach(hide); state='title'; bricks=[]; balls=[]; drops=[]; shots=[]; show('ovTitle'); dim(false); draw(); }
 $('bMenu').onclick=toMenu; $('bMenu2').onclick=toMenu;
 $('bRetry').onclick=()=>{hide('ovOver');dim(false);startGame(mode)};
-$('bSound').onclick=()=>{sound=!sound;$('bSound').classList.toggle('on',sound);unlock();localStorage.setItem('bricks-sound',sound?1:0)};
-if(localStorage.getItem('bricks-sound')==='0'){sound=false;$('bSound').classList.remove('on')}
+$('bSound').onclick=()=>{sound=!sound;$('bSound').classList.toggle('on',sound);$('bSound').classList.toggle('off',!sound);unlock();localStorage.setItem('bricks-sound',sound?1:0)};
+if(localStorage.getItem('bricks-sound')==='0'){sound=false;$('bSound').classList.remove('on');$('bSound').classList.add('off')}
 document.addEventListener('visibilitychange',()=>{ if(document.hidden&&state==='play') togglePause(); });
 
 /* 랭킹 */
