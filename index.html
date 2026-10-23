@@ -36,8 +36,8 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .lbl em{flex:1;height:6px;background:repeating-linear-gradient(90deg,#e8284f 0 4px,transparent 4px 5px,#f26a0d 5px 9px,transparent 9px 10px,#f2b000 10px 14px,transparent 14px 15px,#10b870 15px 19px,transparent 19px 20px,#00a8e0 20px 24px,transparent 24px 25px,#8a3cf0 25px 29px,transparent 29px 30px)}
 .bezel{flex:1;min-height:0;display:flex;flex-direction:column;padding:8px;border-radius:10px;background:#101016;box-shadow:inset 0 0 0 1px rgba(255,255,255,.05)}
 .screen{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;padding:8px;border-radius:8px;position:relative;overflow:hidden;
-  background:radial-gradient(90% 60% at 80% 10%,rgba(120,70,200,.35),transparent 70%),radial-gradient(80% 60% at 10% 90%,rgba(30,110,170,.25),transparent 70%),radial-gradient(130% 90% at 50% 40%,#141838,#05061a 80%);box-shadow:inset 0 0 0 1px rgba(150,160,255,.25),inset 0 0 40px rgba(0,0,0,.6)}
-.box{flex:1;border:3px solid var(--gb);border-radius:9px;padding:6px 2px 7px;text-align:center;background:radial-gradient(120% 100% at 50% 40%,#161a3c,#0c0e24);box-shadow:0 0 10px rgba(150,170,255,.08)}
+  background:#0a0c1d;box-shadow:inset 0 0 0 1px rgba(150,160,255,.25),inset 0 0 40px rgba(0,0,0,.6)}
+.box{flex:1;border:3px solid var(--gb);border-radius:9px;padding:6px 2px 7px;text-align:center;background:#10132b;box-shadow:0 0 10px rgba(150,170,255,.08)}
 .box small{display:block;font:700 9px Silkscreen;color:var(--g2);letter-spacing:1px;margin-bottom:3px}
 .box span{font:700 16px Silkscreen;color:var(--g1);text-shadow:0 0 6px rgba(220,226,255,.55);white-space:nowrap}
 .box .hearts{color:#ff4d6d;text-shadow:0 0 6px #ff4d6d;font-family:Galmuri11,sans-serif;font-size:13px;letter-spacing:1px}
@@ -433,22 +433,18 @@ function drawBrick(b){ // 통통한 벽돌 · 종류마다 다른 무늬
   else if(b.t==='?'){ x.fillStyle='#fff'; x.font='700 12px Silkscreen, monospace'; x.textAlign='center'; x.textBaseline='middle'; x.fillText('?',cx,cy+1); }
   else if(b.t==='X'){ x.strokeStyle='rgba(120,80,0,.6)'; x.lineWidth=1.5; x.strokeRect(X+4,Y+4,w-8,h-8); }
 }
-let STARS=null,SHOOT=null;
-function sky(){ const t=performance.now();
-  if(!STARS||STARS.h!==H){ STARS=[]; STARS.h=H; for(let i=0;i<90;i++) STARS.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()<.12?1.4:Math.random()*.9+.3,p:Math.random()*6.28,s:.004+Math.random()*.012,c:['#ffffff','#cfd8ff','#ffe6c4','#c4f0ff'][i%4]}); }
-  const g=x.createRadialGradient(W*.78,H*.18,0,W*.78,H*.18,W*.9); g.addColorStop(0,'rgba(120,70,200,.22)'); g.addColorStop(.5,'rgba(40,40,120,.10)'); g.addColorStop(1,'rgba(0,0,0,0)'); x.fillStyle=g; x.fillRect(0,0,W,H);
-  const g2=x.createRadialGradient(W*.12,H*.75,0,W*.12,H*.75,W*.7); g2.addColorStop(0,'rgba(30,110,170,.16)'); g2.addColorStop(1,'rgba(0,0,0,0)'); x.fillStyle=g2; x.fillRect(0,0,W,H);
-  for(const s of STARS){ s.y+=s.s*6; if(s.y>H){s.y=0;s.x=Math.random()*W;} x.globalAlpha=.35+.65*Math.abs(Math.sin(t/900*s.s*60+s.p)); x.fillStyle=s.c; x.fillRect(s.x,s.y,s.r,s.r); } x.globalAlpha=1;
-  if(!SHOOT&&Math.random()<.004) SHOOT={x:Math.random()*W*.8+W*.2,y:Math.random()*H*.4,l:1};
-  if(SHOOT){ const s=SHOOT; const gr=x.createLinearGradient(s.x,s.y,s.x+40,s.y-20); gr.addColorStop(0,'rgba(255,255,255,'+s.l+')'); gr.addColorStop(1,'rgba(255,255,255,0)'); x.strokeStyle=gr; x.lineWidth=1.5; x.beginPath(); x.moveTo(s.x,s.y); x.lineTo(s.x+40,s.y-20); x.stroke(); s.x-=5; s.y+=2.5; s.l-=.025; if(s.l<=0) SHOOT=null; } }
-const PLANETS=[['#7fd4ff','#2a6fd6','#0c2a6b',0],['#ffd08a','#e08a2e','#6b3510',1],['#ff9a8a','#d6452e','#5a1408',0],['#e0b8ff','#8a4fe0','#2e0f6b',1],['#a8ffd8','#2eb88a','#0a4a36',0]];
-function planet(b){ const P=PLANETS[b.pt||0], R=b.r, t=performance.now();
-  if(P[3]){ x.save(); x.strokeStyle='rgba(255,236,200,.55)'; x.lineWidth=R*.22; x.beginPath(); x.ellipse(b.x,b.y,R*1.65,R*.5,-.35,Math.PI,Math.PI*2); x.stroke(); x.restore(); }
-  x.save(); x.shadowColor=P[1]; x.shadowBlur=R*1.4; const g=x.createRadialGradient(b.x-R*.35,b.y-R*.4,R*.1,b.x,b.y,R); g.addColorStop(0,P[0]); g.addColorStop(.55,P[1]); g.addColorStop(1,P[2]); x.fillStyle=g; x.beginPath(); x.arc(b.x,b.y,R,0,7); x.fill(); x.restore();
-  x.save(); x.beginPath(); x.arc(b.x,b.y,R,0,7); x.clip(); x.fillStyle='rgba(255,255,255,.14)'; const o=(t/60)%(R*4);
-  for(let k=-2;k<3;k++){ x.fillRect(b.x-R+((o+k*R*1.6)%(R*4))-R,b.y-R*.35+k*R*.1,R*1.1,R*.18); x.fillRect(b.x-R+((o*0.7+k*R*2.1)%(R*4))-R,b.y+R*.25,R*.8,R*.14); }
-  x.fillStyle='rgba(0,0,10,.28)'; x.beginPath(); x.arc(b.x+R*.45,b.y+R*.45,R*1.05,0,7); x.fill(); x.restore();
-  if(P[3]){ x.save(); x.strokeStyle='rgba(255,236,200,.75)'; x.lineWidth=R*.22; x.beginPath(); x.ellipse(b.x,b.y,R*1.65,R*.5,-.35,0,Math.PI); x.stroke(); x.restore(); } }
+let STARS=null;
+function sky(){ const t=performance.now(); /* 단색 밤하늘 + 작은 별 */
+  if(!STARS||STARS.h!==H){ STARS=[]; STARS.h=H; for(let i=0;i<70;i++) STARS.push({x:Math.round(Math.random()*W),y:Math.round(Math.random()*H),r:Math.random()<.15?2:1,p:Math.random()*6.28,c:['#ffffff','#c9d0ff','#ffe9b8'][i%3]}); }
+  for(const s of STARS){ x.globalAlpha=.3+.7*Math.abs(Math.sin(t/1400+s.p)); x.fillStyle=s.c; x.fillRect(s.x,s.y,s.r,s.r); } x.globalAlpha=1; }
+const PLANETS=[['#4aa8ff','#2f7fe0',0],['#ffb347','#e8892a',1],['#ff6b6b','#d94848',0],['#b88cff','#8f62e8',1],['#5ee0a8','#36b884',0]];
+function planet(b){ const P=PLANETS[b.pt||0], R=b.r; /* 플랫한 행성: 단색 몸통 + 줄무늬 + (일부) 고리 */
+  const ring=a=>{ x.save(); x.strokeStyle='#ffe2a8'; x.lineWidth=Math.max(2,R*.2); x.beginPath(); x.ellipse(b.x,b.y,R*1.6,R*.42,-.3,a,a+Math.PI); x.stroke(); x.restore(); };
+  if(P[2]) ring(Math.PI);
+  x.fillStyle=P[0]; x.beginPath(); x.arc(b.x,b.y,R,0,7); x.fill();
+  x.save(); x.beginPath(); x.arc(b.x,b.y,R,0,7); x.clip(); x.fillStyle=P[1]; x.fillRect(b.x-R,b.y-R*.15,R*2,R*.32); x.fillRect(b.x-R,b.y+R*.45,R*2,R*.22); x.restore();
+  x.fillStyle='rgba(255,255,255,.75)'; x.beginPath(); x.arc(b.x-R*.42,b.y-R*.42,R*.18,0,7); x.fill();
+  if(P[2]) ring(0); }
 function draw(){
   x.clearRect(0,0,W,H);
   sky(); // 우주 밤하늘 · 반짝이는 별 · 별똥별
