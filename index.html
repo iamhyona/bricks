@@ -96,10 +96,10 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 </style>
 <script>/* 카톡 등 인앱 브라우저: 실제 보이는 높이로 화면 맞춤 */(function(){var d=document.documentElement;function f(){d.style.setProperty('--app-h',window.innerHeight+'px')}f();addEventListener('resize',f);addEventListener('orientationchange',function(){setTimeout(f,300)});addEventListener('pageshow',f);setTimeout(f,250);setTimeout(f,1000)})();</script>
 <style>html,body{height:var(--app-h,100dvh)!important}</style>
-</head>
+<link rel="stylesheet" href="../games/ph.css?v=1"><style>#ovTitle{--phB:#3d6b48;--phT:#c8f0b0;--phBg:#0f1c14;--phR:rgba(125,255,176,.12);--phC:rgba(200,240,176,.45);padding:0!important}</style></head>
 <body>
 <div class="gb">
-  <div class="lbl"><em></em>© 2026 PARK HYONA<em></em></div>
+  <div class="lcd-label"><i class="ln"></i><span class="copy">© 2026 PARK HYONA</span><i class="ln"></i></div>
   <div class="bezel"><div class="screen" id="screen">
     <div class="hud">
       <div class="box"><i class="pix" data-ic="flag"></i><span id="hStage">01</span></div>
@@ -111,14 +111,7 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
     </div>
     <div class="field" id="field"><canvas id="cv"></canvas><div class="flash" id="flash"></div></div>
 
-    <div class="ov show" id="ovTitle">
-      <div class="title" id="logo"></div>
-      <div class="sub">벽돌깨기</div>
-      <button class="btn" id="bStart">START</button>
-      <button class="btn y" id="bRank2">RANKING</button>
-      <div class="help">드래그로 패들 이동 · 탭해서 공 발사<br>PC: 마우스 / ← → · 스페이스</div>
-      <div class="credit">이 게임은 서울 마포구에 사는 박현아가 만든<br>비상업용 게임이에요. 지치고 힘들 때<br>잠시 머리 식히며 마음껏 즐겨 주세요.</div>
-    </div>
+    <div class="ov show" id="ovTitle"><div id="logo" hidden></div><div class="phS"><i class="phS-sp a"></i><div class="phS-logo" data-word="BRICKS"></div><div class="phS-show"><svg viewBox="0 0 34 34"><rect x="2" y="10" width="30" height="14" rx="3" fill="#e8284f"/><rect x="5" y="12.5" width="12" height="3" rx="1.5" fill="#fff" opacity=".35"/></svg><svg viewBox="0 0 34 34"><rect x="2" y="10" width="30" height="14" rx="3" fill="#f26a0d"/><rect x="5" y="12.5" width="12" height="3" rx="1.5" fill="#fff" opacity=".35"/></svg><svg viewBox="0 0 34 34"><rect x="2" y="10" width="30" height="14" rx="3" fill="#f2b000"/><rect x="5" y="12.5" width="12" height="3" rx="1.5" fill="#fff" opacity=".35"/></svg><svg viewBox="0 0 34 34"><rect x="2" y="10" width="30" height="14" rx="3" fill="#10b870"/><rect x="5" y="12.5" width="12" height="3" rx="1.5" fill="#fff" opacity=".35"/></svg><svg viewBox="0 0 34 34"><rect x="2" y="10" width="30" height="14" rx="3" fill="#00a8e0"/><rect x="5" y="12.5" width="12" height="3" rx="1.5" fill="#fff" opacity=".35"/></svg><svg viewBox="0 0 34 34"><rect x="2" y="10" width="30" height="14" rx="3" fill="#2a5ef0"/><rect x="5" y="12.5" width="12" height="3" rx="1.5" fill="#fff" opacity=".35"/></svg><svg viewBox="0 0 34 34"><rect x="2" y="10" width="30" height="14" rx="3" fill="#8a3cf0"/><rect x="5" y="12.5" width="12" height="3" rx="1.5" fill="#fff" opacity=".35"/></svg></div><i class="phS-sp b"></i><div class="phS-btns"><button class="phS-b" id="bStart">SINGLE PLAY</button><button class="phS-b gold" id="bRank2">RANKING</button></div><i class="phS-sp c"></i><div class="phS-credit">이 게임은 서울 마포구에 사는 박현아가 만든<br>비상업용 게임이에요. 지치고 힘들 때<br>잠시 머리 식히며 마음껏 즐겨 주세요.</div></div></div>
     <div class="ov" id="ovMode">
       <button class="btn easy" data-m="easy">EASY MODE<small>SCORE ×0.5 · LIFE 5</small></button>
       <button class="btn" data-m="normal">NORMAL MODE<small>SCORE ×1 · LIFE 3</small></button>
@@ -416,7 +409,7 @@ function show(id){$(id).classList.add('show')} function hide(id){$(id).classList
 function dim(on){ ['bPause','bRank'].forEach(i=>$(i).disabled=false); $('bPause').disabled=on; }
 const logo=$('logo'); 'BRICKS'.split('').forEach((ch,i)=>{const b=document.createElement('b');b.textContent=ch;b.style.color=['#e8284f','#f26a0d','#f2b000','#10b870','#00a8e0','#8a3cf0'][i];logo.append(b)});
 $('bStart').onclick=()=>{unlock();show('ovMode')};
-document.querySelectorAll('#ovMode [data-m]').forEach(b=>b.onclick=()=>startGame(b.dataset.m));
+document.querySelectorAll('#ovMode [data-m]').forEach(b=>b.onclick=()=>phTut('bricks-tut',{"goal": "공을 튕겨서 벽돌을 모두 깨면 다음 스테이지!<br>공을 놓치면 목숨이 하나 줄어요.", "touch": [["드래그", "패들 옮기기"], ["탭", "공 발사"]], "pc": [["마우스 / ← →", "패들 옮기기"], ["클릭 / SPACE", "공 발사"]]},()=>startGame(b.dataset.m)));
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>hide(b.dataset.close));
 function togglePause(){
   if(state==='play'){ state='pause'; show('ovPause'); }
@@ -463,5 +456,5 @@ if(location.hash==='#test') window.__t={clear:()=>{bricks=bricks.filter(b=>b.t==
 resize(); hud(); requestAnimationFrame(loop);
 })();
 </script>
-</body>
+<script src="../games/ph.js?v=1"></script></body>
 </html>
