@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ko">
-<head><style>html.phL body{visibility:hidden}</style><script>/* 글꼴·최신 버전 확인될 때까지 잠깐 가리기 (옛 글꼴·옛 화면 깜빡임 방지) */(function(){var d=document.documentElement,n=2;d.classList.add("phL");function o(){d.classList.remove("phL")}window.__phDone=function(){if(--n<=0)o()};setTimeout(o,1200);function f(){try{var F=document.fonts;Promise.all([F.load('700 14px "Silkscreen"'),F.load('12px "Galmuri11"'),F.load('8px "Press Start 2P"')]).then(function(){return F.ready}).then(window.__phDone,window.__phDone)}catch(e){o()}}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",f);else f()})();</script><script>/* 옛 버전 캐시 자동 갱신 */(function(){var V="1792755461";try{fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){var m=t.match(/var V="(\d+)"/);if(m&&m[1]!==V&&location.search.indexOf("v="+m[1])<0){location.replace(location.pathname+"?v="+m[1])}if(!(m&&m[1]!==V)&&window.__phDone)__phDone()}).catch(function(){window.__phDone&&__phDone()})}catch(e){window.__phDone&&__phDone()}})();</script>
+<head><style>html.phL body{visibility:hidden}</style><script>/* 글꼴·최신 버전 확인될 때까지 잠깐 가리기 (옛 글꼴·옛 화면 깜빡임 방지) */(function(){var d=document.documentElement,n=2;d.classList.add("phL");function o(){d.classList.remove("phL")}window.__phDone=function(){if(--n<=0)o()};setTimeout(o,1200);function f(){try{var F=document.fonts;Promise.all([F.load('700 14px "Silkscreen"'),F.load('12px "Galmuri11"'),F.load('8px "Press Start 2P"')]).then(function(){return F.ready}).then(window.__phDone,window.__phDone)}catch(e){o()}}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",f);else f()})();</script><script>/* 옛 버전 캐시 자동 갱신 */(function(){var V="1792755542";try{fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){var m=t.match(/var V="(\d+)"/);if(m&&m[1]!==V&&location.search.indexOf("v="+m[1])<0){location.replace(location.pathname+"?v="+m[1])}if(!(m&&m[1]!==V)&&window.__phDone)__phDone()}).catch(function(){window.__phDone&&__phDone()})}catch(e){window.__phDone&&__phDone()}})();</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>BRICKS · 벽돌깨기</title>
@@ -100,12 +100,7 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 .field.dead{animation:bkDead .6s ease-out}
 @keyframes bkDead{0%{transform:translate(0,0)}10%{transform:translate(-9px,6px)}20%{transform:translate(8px,-5px)}30%{transform:translate(-7px,4px)}45%{transform:translate(5px,-3px)}60%{transform:translate(-3px,2px)}80%{transform:translate(2px,-1px)}100%{transform:translate(0,0)}}
 .field.dead::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 60%,rgba(255,40,70,.35),rgba(0,0,0,.4) 70%);animation:bkRed 1.4s ease-out forwards;pointer-events:none;z-index:3}
-@keyframes bkRed{0%{opacity:0}15%{opacity:1}100%{opacity:.55}}
-/* 레벨별 테두리 색: EASY 노랑 · NORMAL 하늘 · HARD 빨강 · MASTER 보라 */
-.field[data-m=easy]{border-color:#f2b000!important;box-shadow:0 0 16px rgba(242,176,0,.35)!important}
-.field[data-m=normal]{border-color:#00a8e0!important;box-shadow:0 0 16px rgba(0,168,224,.35)!important}
-.field[data-m=hard]{border-color:#e8284f!important;box-shadow:0 0 16px rgba(232,40,79,.38)!important}
-.field[data-m=master]{border-color:#8a3cf0!important;box-shadow:0 0 16px rgba(138,60,240,.42)!important}</style></head>
+@keyframes bkRed{0%{opacity:0}15%{opacity:1}100%{opacity:.55}}</style></head>
 <body>
 <div class="gb">
   <div class="lcd-label"><i class="ln"></i><span class="copy">© 2026 PARK HYONA</span><i class="ln"></i></div>
@@ -212,7 +207,7 @@ function speed(){ return (3.3+Math.min(3.6,(stageN-1)*0.34))*MODES[mode].spd*(ef
 function padW(){ return Math.max(52,72-(stageN-1)*2); } // 스테이지마다 패들 조금씩 짧아짐
 function ballR(){ return {easy:18,normal:13,hard:7,master:5}[mode]||13; } // 행성 공 · 레벨별로 크기 차이 확실하게
 function newBall(stuck=true){ pad.tx=pad.x;
-   return {x:pad.x,y:pad.y-6,vx:0,vy:0,r:ballR(),stuck,pt:0}; } // 기본 공은 지구
+   return {x:pad.x,y:pad.y-6,vx:0,vy:0,r:ballR(),stuck,pt:lv().pt}; } // 기본 공 = 레벨 색 행성 (노말은 지구)
 function launch(){ for(const b of balls) if(b.stuck){ b.off=0; const a=(-60+Math.random()*30)*Math.PI/180; const s=speed(); b.vx=Math.sin(a+Math.PI/6)*s; b.vy=-Math.cos(a+Math.PI/6)*s; b.stuck=false; } }
 const PIX={
  pause:['........','.11..11.','.11..11.','.11..11.','.11..11.','.11..11.','.11..11.','........'],
@@ -231,7 +226,7 @@ function hud(){
   let f=14; while(s.scrollWidth>p.clientWidth-6&&f>8){f--;s.style.fontSize=f+'px'}
 }
 function startGame(m){
-  mode=m; stageN=1; score=0; lives=MODES[m].life; effects={}; pad.w=padBase; $('field').classList.remove('dead'); $('field').dataset.m=m; // 레벨별 테두리 색
+  mode=m; stageN=1; score=0; lives=MODES[m].life; effects={}; pad.w=padBase; $('field').classList.remove('dead');
   startStage(); state='play'; hide('ovMode'); hide('ovTitle'); hud(); unlock();
 }
 function startStage(){ wallY=Math.min(80,(stageN-1)*8); creep=0; padBase=padW(); resize(); buildStage(); balls=[newBall()]; drops=[]; shots=[]; effects={}; pad.w=padBase; hud(); } // 스테이지마다 벽돌이 패들 쪽으로 내려옴
@@ -468,7 +463,9 @@ function sky(){ const t=performance.now(); /* 단색 밤하늘 + 작은 별 + �
   for(const s of STARS){ x.globalAlpha=.3+.7*Math.abs(Math.sin(t/1400+s.p)); x.fillStyle=s.c; x.fillRect(s.x,s.y,s.r,s.r); } x.globalAlpha=1;
   if(!SHOOT&&t>shootAt){ SHOOT={x:W*.35+Math.random()*W*.65,y:Math.random()*H*.35,l:1}; shootAt=t+3500+Math.random()*4000; }
   if(SHOOT){ const s=SHOOT; x.save(); x.globalAlpha=Math.max(0,s.l); x.strokeStyle='#ffffff'; x.lineWidth=1.5; x.beginPath(); x.moveTo(s.x,s.y); x.lineTo(s.x+26,s.y-13); x.stroke(); x.globalAlpha=Math.max(0,s.l)*.4; x.beginPath(); x.moveTo(s.x+26,s.y-13); x.lineTo(s.x+46,s.y-23); x.stroke(); x.restore(); s.x-=5; s.y+=2.5; s.l-=.03; if(s.l<=0) SHOOT=null; } }
-const PLANETS=[['#4aa8ff','#5ee07a'],['#ffb347','#e8892a'],['#ff6b6b','#d94848'],['#b88cff','#8f62e8'],['#5ee0c8','#2fb8a0']];
+const PLANETS=[['#4aa8ff','#5ee07a'],['#ffb347','#e8892a'],['#ff6b6b','#d94848'],['#b88cff','#8f62e8'],['#5ee0c8','#2fb8a0'],['#ffd84d','#e0a000']];
+const LVC={easy:{pt:5,top:'#fff6c8',bot:'#e0a000',glow:'#ffd84d',lamp:'#fff2a0'},normal:{pt:0,top:'#e6f7ff',bot:'#0a8fd0',glow:'#7fd9ff',lamp:'#7ff6ff'},hard:{pt:2,top:'#ffe0e6',bot:'#d42446',glow:'#ff6b86',lamp:'#ffc2cd'},master:{pt:3,top:'#f1e6ff',bot:'#7a34e0',glow:'#b88cff',lamp:'#e3d0ff'}}; // 레벨별 바·행성 색: EASY 노랑 · NORMAL 하늘(지구) · HARD 빨강 · MASTER 보라
+const lv=()=>LVC[mode]||LVC.normal;
 function planet(b){ const P=PLANETS[b.pt||0], R=b.r; /* 플랫한 행성 + 글로우 (멀티볼만 고리) */
   const ring=a=>{ x.save(); x.strokeStyle='#ffe2a8'; x.lineWidth=Math.max(2,R*.2); x.beginPath(); x.ellipse(b.x,b.y,R*1.6,R*.42,-.3,a,a+Math.PI); x.stroke(); x.restore(); };
   if(b.ring) ring(Math.PI);
@@ -502,9 +499,9 @@ function draw(){
   x.save(); x.shadowColor='#ff4d6d'; x.shadowBlur=8; x.fillStyle='#ffb3c1'; for(const s of shots) x.fillRect(s.x-1,s.y-6,2,7); x.restore();
   // 패들
   if(state!=='title'){
-    const c=effects.L?'#ff4d6d':'#8fb4ff';
-    x.save(); x.shadowColor=c; x.shadowBlur=18; rr(pad.x-pad.w/2,pad.y,pad.w,pad.h,5); const pg=x.createLinearGradient(0,pad.y,0,pad.y+pad.h); pg.addColorStop(0,effects.L?'#ffd0da':'#e6ecff'); pg.addColorStop(1,effects.L?'#ff6b86':'#6f86e8'); x.fillStyle=pg; x.fill(); x.restore();
-    x.save(); x.fillStyle='#7ff6ff'; x.shadowColor='#7ff6ff'; x.shadowBlur=8; for(let i=-1;i<=1;i++){ x.beginPath(); x.arc(pad.x+i*pad.w*.3,pad.y+pad.h*.55,1.6,0,7); x.fill(); } x.restore(); // 우주선 불빛
+    const L=lv(), c=effects.L?'#ff4d6d':L.glow; // 바 색 = 레벨 색
+    x.save(); x.shadowColor=c; x.shadowBlur=18; rr(pad.x-pad.w/2,pad.y,pad.w,pad.h,5); const pg=x.createLinearGradient(0,pad.y,0,pad.y+pad.h); pg.addColorStop(0,effects.L?'#ffd0da':L.top); pg.addColorStop(1,effects.L?'#ff6b86':L.bot); x.fillStyle=pg; x.fill(); x.restore();
+    x.save(); x.fillStyle=L.lamp; x.shadowColor=L.lamp; x.shadowBlur=8; for(let i=-1;i<=1;i++){ x.beginPath(); x.arc(pad.x+i*pad.w*.3,pad.y+pad.h*.55,1.6,0,7); x.fill(); } x.restore(); // 우주선 불빛
     x.fillStyle='rgba(255,255,255,.5)'; x.fillRect(pad.x-pad.w/2+3,pad.y+1.5,pad.w-6,1.5);
     if(effects.L){ x.fillStyle='#ff4d6d'; x.fillRect(pad.x-pad.w/2+2,pad.y-3,4,3); x.fillRect(pad.x+pad.w/2-6,pad.y-3,4,3); }
   }
@@ -537,7 +534,7 @@ function togglePause(){ if(window.PHVS&&PHVS.active&&state==='play') return;
 }
 $('bPause').onclick=togglePause; $('bResume').onclick=togglePause;
 $('bRestart').onclick=()=>{hide('ovPause');startGame(mode)};
-function toMenu(){ $('field').classList.remove('dead'); delete $('field').dataset.m; ['ovPause','ovOver','ovRank'].forEach(hide); state='title'; bricks=[]; balls=[]; drops=[]; shots=[]; show('ovTitle'); dim(false); draw(); }
+function toMenu(){ $('field').classList.remove('dead'); ['ovPause','ovOver','ovRank'].forEach(hide); state='title'; bricks=[]; balls=[]; drops=[]; shots=[]; show('ovTitle'); dim(false); draw(); }
 $('bMenu').onclick=toMenu; $('bMenu2').onclick=toMenu;
 $('bRetry').onclick=()=>{hide('ovOver');dim(false);startGame(mode)};
 $('bSound').onclick=()=>{sound=!sound;$('bSound').classList.toggle('on',sound);$('bSound').classList.toggle('off',!sound);unlock();localStorage.setItem('bricks-sound',sound?1:0)};
