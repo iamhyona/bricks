@@ -199,7 +199,7 @@ function speed(){ return (3.3+Math.min(3.6,(stageN-1)*0.34))*MODES[mode].spd*(ef
 function padW(){ return Math.max(52,72-(stageN-1)*2); } // 스테이지마다 패들 조금씩 짧아짐
 function ballR(){ return {easy:15,normal:13,hard:11,master:9}[mode]||13; } // 행성 공 · 어려울수록 작아짐
 function newBall(stuck=true){ pad.tx=pad.x;
-   return {x:pad.x,y:pad.y-6,vx:0,vy:0,r:ballR(),stuck}; }
+   return {x:pad.x,y:pad.y-6,vx:0,vy:0,r:ballR(),stuck,pt:0}; } // 기본 공은 지구
 function launch(){ for(const b of balls) if(b.stuck){ b.off=0; const a=(-60+Math.random()*30)*Math.PI/180; const s=speed(); b.vx=Math.sin(a+Math.PI/6)*s; b.vy=-Math.cos(a+Math.PI/6)*s; b.stuck=false; } }
 const PIX={
  pause:['........','.11..11.','.11..11.','.11..11.','.11..11.','.11..11.','.11..11.','........'],
@@ -263,13 +263,13 @@ function bgmTick(want){
   if(!ac) return;
   if(!BGM.g){ BGM.g=ac.createGain(); BGM.g.gain.value=0; const hp=ac.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=120; BGM.dl=ac.createDelay(1); BGM.dl.delayTime.value=.3; const fb=ac.createGain(); fb.gain.value=.32; BGM.dl.connect(fb).connect(BGM.dl); BGM.dl.connect(hp); BGM.g.connect(hp).connect(ac.destination); BGM.at=ac.currentTime+.1; }
   const now=ac.currentTime;
-  if(want!==BGM.on){ BGM.on=want; BGM.g.gain.cancelScheduledValues(now); BGM.g.gain.setValueAtTime(BGM.g.gain.value,now); BGM.g.gain.linearRampToValueAtTime(want?.5:0,now+(want?1.2:.4)); if(want&&BGM.at<now) BGM.at=now+.05; } // 배경음악 볼륨 절반
+  if(want!==BGM.on){ BGM.on=want; BGM.g.gain.cancelScheduledValues(now); BGM.g.gain.setValueAtTime(BGM.g.gain.value,now); BGM.g.gain.linearRampToValueAtTime(want?.25:0,now+(want?1.2:.4)); if(want&&BGM.at<now) BGM.at=now+.05; } // 배경음악 볼륨 (한 번 더 절반)
   if(!want) return;
   const st=.19; // 16분음표 (조금 경쾌하게)
   while(BGM.at<now+.4){ const i=BGM.n%16, c=CH[(BGM.n>>4)%4], t=BGM.at;
     if(i===0){ for(const m of c.slice(1,4)) bgmVoice(mtf(m),t,st*16,.009,'triangle',BGM.g); bgmVoice(mtf(c[0]),t,st*16,.03,'sine',BGM.g); }
-    if(i%2===0){ const up=[1,2,3,4,5,6,5,6][(i/2)%8]; bell(mtf(c[up]+12),t,.02,.9); } // 위로 떠오르는 아르페지오
-    if(Math.random()<.12) bell(mtf(c[4+(BGM.n%3)]+24),t+st*.5,.008,.6); // 반짝이는 별
+    if(i%2===0){ const up=[1,2,3,4,5,6,5,6][(i/2)%8]; bell(mtf(c[up]),t,.02,.9); } // 위로 떠오르는 아르페지오 (한 옥타브 낮춰 편안하게)
+    if(Math.random()<.12) bell(mtf(c[4+(BGM.n%3)]+12),t+st*.5,.007,.6); // 반짝이는 별
     BGM.at+=st; BGM.n++; } }
 function beep(f,d=.06,type='square',v=.05){ if(!sound||!ac)return; const t=ac.currentTime,o=ac.createOscillator(),g=ac.createGain(); o.type=type; o.frequency.setValueAtTime(f,t); g.gain.setValueAtTime(v,t); g.gain.exponentialRampToValueAtTime(.001,t+d); o.connect(g).connect(ac.destination); o.start(t); o.stop(t+d+.02); }
 function tune(seq){ seq.forEach(([f,dl,d])=>setTimeout(()=>beep(f,d||.12),dl)); }
