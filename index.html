@@ -171,7 +171,7 @@ const ITEMS=[
 const cv=$('cv'),x=cv.getContext('2d');
 let W=300,H=460,dpr=1;
 let mode='normal',stageN=1,score=0,lives=3,bricks=[],balls=[],drops=[],shots=[],parts=[];
-let pad={x:150,tx:150,w:56,h:8,y:0},padBase=56,state='title',effects={},laserCD=0,lastT=0,sound=true;
+let pad={x:150,tx:150,w:72,h:11,y:0},padBase=72,state='title',effects={},laserCD=0,lastT=0,sound=true;
 let bw,bh,top0=34,gap=4,lastWin=null,wallY=0,creep=0;
 
 function resize(){
@@ -196,9 +196,10 @@ function buildStage(){
   }));
 }
 function speed(){ return (3.3+Math.min(3.6,(stageN-1)*0.34))*MODES[mode].spd*(effects.S?0.7:1)*(effects.F?1.35:1); } // 스테이지마다 빨라짐
-function padW(){ return Math.max(40,56-(stageN-1)*2); } // 스테이지마다 패들 조금씩 짧아짐
+function padW(){ return Math.max(52,72-(stageN-1)*2); } // 스테이지마다 패들 조금씩 짧아짐
+function ballR(){ return {easy:7,normal:6,hard:5,master:4}[mode]||6; } // 어려울수록 공이 작아짐
 function newBall(stuck=true){ pad.tx=pad.x;
-   return {x:pad.x,y:pad.y-6,vx:0,vy:0,r:4,stuck}; }
+   return {x:pad.x,y:pad.y-6,vx:0,vy:0,r:ballR(),stuck}; }
 function launch(){ for(const b of balls) if(b.stuck){ b.off=0; const a=(-60+Math.random()*30)*Math.PI/180; const s=speed(); b.vx=Math.sin(a+Math.PI/6)*s; b.vy=-Math.cos(a+Math.PI/6)*s; b.stuck=false; } }
 const PIX={
  pause:['........','.11..11.','.11..11.','.11..11.','.11..11.','.11..11.','.11..11.','........'],
@@ -335,7 +336,7 @@ function take(k){
   else if(k==='N'){ pad.w=padBase*.6; effects.N=until; delete effects.W; pad.tx=clampPad(pad.tx); }
   else if(k==='F'){ effects.F=until; delete effects.S; rescale(); }
   else if(k==='M'){ const src=balls.find(b=>!b.stuck)||balls[0]; if(src.stuck) launch(); const s=Math.hypot(src.vx,src.vy)||speed();
-    for(const d of[-25,25]){ const a=Math.atan2(src.vx,-src.vy)+d*Math.PI/180; balls.push({x:src.x,y:src.y,r:4,vx:Math.sin(a)*s,vy:-Math.cos(a)*s,stuck:false}); } }
+    for(const d of[-25,25]){ const a=Math.atan2(src.vx,-src.vy)+d*Math.PI/180; balls.push({x:src.x,y:src.y,r:src.r,vx:Math.sin(a)*s,vy:-Math.cos(a)*s,stuck:false}); } }
   else if(k==='L'){ effects.L=until; }
   else if(k==='S'){ effects.S=until; delete effects.F; rescale(); }
   else if(k==='2'){ effects['2']=until; }
