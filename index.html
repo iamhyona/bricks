@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ko">
-<head><style>html.phL body{visibility:hidden}</style><script>/* 글꼴·최신 버전 확인될 때까지 잠깐 가리기 (옛 글꼴·옛 화면 깜빡임 방지) */(function(){var d=document.documentElement,n=2;d.classList.add("phL");function o(){d.classList.remove("phL")}window.__phDone=function(){if(--n<=0)o()};setTimeout(o,1200);function f(){try{var F=document.fonts;Promise.all([F.load('700 14px "Silkscreen"'),F.load('12px "Galmuri11"'),F.load('8px "Press Start 2P"')]).then(function(){return F.ready}).then(window.__phDone,window.__phDone)}catch(e){o()}}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",f);else f()})();</script><script>/* 옛 버전 캐시 자동 갱신 */(function(){var V="1792747339";try{fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){var m=t.match(/var V="(\d+)"/);if(m&&m[1]!==V&&location.search.indexOf("v="+m[1])<0){location.replace(location.pathname+"?v="+m[1])}if(!(m&&m[1]!==V)&&window.__phDone)__phDone()}).catch(function(){window.__phDone&&__phDone()})}catch(e){window.__phDone&&__phDone()}})();</script>
+<head><style>html.phL body{visibility:hidden}</style><script>/* 글꼴·최신 버전 확인될 때까지 잠깐 가리기 (옛 글꼴·옛 화면 깜빡임 방지) */(function(){var d=document.documentElement,n=2;d.classList.add("phL");function o(){d.classList.remove("phL")}window.__phDone=function(){if(--n<=0)o()};setTimeout(o,1200);function f(){try{var F=document.fonts;Promise.all([F.load('700 14px "Silkscreen"'),F.load('12px "Galmuri11"'),F.load('8px "Press Start 2P"')]).then(function(){return F.ready}).then(window.__phDone,window.__phDone)}catch(e){o()}}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",f);else f()})();</script><script>/* 옛 버전 캐시 자동 갱신 */(function(){var V="1792751367";try{fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){var m=t.match(/var V="(\d+)"/);if(m&&m[1]!==V&&location.search.indexOf("v="+m[1])<0){location.replace(location.pathname+"?v="+m[1])}if(!(m&&m[1]!==V)&&window.__phDone)__phDone()}).catch(function(){window.__phDone&&__phDone()})}catch(e){window.__phDone&&__phDone()}})();</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>BRICKS · 벽돌깨기</title>
@@ -96,7 +96,11 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 </style>
 <script>/* 카톡 등 인앱 브라우저: 실제 보이는 높이로 화면 맞춤 */(function(){var d=document.documentElement;function f(){d.style.setProperty('--app-h',window.innerHeight+'px')}f();addEventListener('resize',f);addEventListener('orientationchange',function(){setTimeout(f,300)});addEventListener('pageshow',f);setTimeout(f,250);setTimeout(f,1000)})();</script>
 <style>html,body{height:var(--app-h,100dvh)!important}</style>
-<link rel="stylesheet" href="../games/ph.css?v=6"><style>#ovTitle{--phB:#4a4f9a;--phT:#dfe4ff;--phBg:#11132a;--phR:rgba(150,170,255,.12);--phC:rgba(220,226,255,.45);padding:0!important}</style><script src="../games/vs.js?v=2"></script></head>
+<link rel="stylesheet" href="../games/ph.css?v=6"><style>#ovTitle{--phB:#4a4f9a;--phT:#dfe4ff;--phBg:#11132a;--phR:rgba(150,170,255,.12);--phC:rgba(220,226,255,.45);padding:0!important}</style><script src="../games/vs.js?v=2"></script><style>.field.dead canvas{filter:grayscale(1) brightness(.55) contrast(1.1);transition:filter 1.2s ease}
+.field.dead{animation:bkDead .6s ease-out}
+@keyframes bkDead{0%{transform:translate(0,0)}10%{transform:translate(-9px,6px)}20%{transform:translate(8px,-5px)}30%{transform:translate(-7px,4px)}45%{transform:translate(5px,-3px)}60%{transform:translate(-3px,2px)}80%{transform:translate(2px,-1px)}100%{transform:translate(0,0)}}
+.field.dead::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 60%,rgba(255,40,70,.35),rgba(0,0,0,.4) 70%);animation:bkRed 1.4s ease-out forwards;pointer-events:none;z-index:3}
+@keyframes bkRed{0%{opacity:0}15%{opacity:1}100%{opacity:.55}}</style></head>
 <body>
 <div class="gb">
   <div class="lcd-label"><i class="ln"></i><span class="copy">© 2026 PARK HYONA</span><i class="ln"></i></div>
@@ -129,6 +133,7 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
       <div class="sub" id="overTitle">GAME OVER</div>
       <div class="big" id="overScore">0</div>
       <div class="msg" id="overInfo"></div>
+      <div class="msg" id="overInfo2" style="color:#ff8aa0"></div>
       <div class="row"><input id="nameIn" maxlength="8" placeholder="이름" autocomplete="off"><button id="bSave">OK</button></div>
       <button class="btn" id="bRetry">RETRY</button>
       <button class="btn" id="bMenu2">MAIN MENU</button>
@@ -148,6 +153,7 @@ const RANK_URL='https://script.google.com/macros/s/AKfycbzkdjVleobj98oyxlC77cUf5
 const $=id=>document.getElementById(id);
 const COLORS={1:'#e8284f',2:'#f26a0d',3:'#f2b000',4:'#10b870',5:'#00a8e0',6:'#8a3cf0'};
 const COLS=7; // 통통한 벽돌: 7칸
+let SPL=1; const splitN=()=>({easy:1,normal:stageN>=4?2:1,hard:2,master:stageN>=4?3:2}[mode]||1); // 어려울수록 벽돌이 쪼개져 많아짐
 // 스테이지 배치: 1~6 색 벽돌 · S 은색(2번) · H 단단(3번) · B 폭탄(주변 함께 터짐) · ? 아이템 상자 · X 금색(안 깨짐) · . 빈칸
 const STAGES=[
  ["1111111","2222222","3333333"],
@@ -179,7 +185,7 @@ function resize(){
   W=300; H=Math.max(380,Math.round(W*r.height/r.width));
   cv.width=r.width*dpr; cv.height=r.height*dpr;
   x.setTransform(cv.width/W,0,0,cv.height/H,0,0);
-  pad.y=H-Math.max(60,Math.round(H*.14)); /* 손가락에 가리지 않게 바닥에서 띄움 */ bw=(W-12-gap*(COLS-1))/COLS; bh=20; top0=Math.max(30,Math.round(H*.08));
+  pad.y=H-Math.max(60,Math.round(H*.14)); /* 손가락에 가리지 않게 바닥에서 띄움 */ bw=(W-12-gap*(COLS*SPL-1))/(COLS*SPL); bh=20; top0=Math.max(30,Math.round(H*.08));
   for(const b of bricks){b.y=top0+wallY+b.r*(bh+gap);b.h=bh;}
   for(const b of bricks){b.x=6+b.c*(bw+gap);b.w=bw;}
   draw();
@@ -190,9 +196,11 @@ if(window.ResizeObserver) new ResizeObserver(resize).observe($('field'));
 
 function buildStage(){
   const L=STAGES[(stageN-1)%STAGES.length]; bricks=[];
-  L.forEach((row,r)=>[...row].forEach((ch,c)=>{ if(ch==='.')return;
+  SPL=splitN(); bw=(W-12-gap*(COLS*SPL-1))/(COLS*SPL);
+  L.forEach((row,r)=>[...row].forEach((ch0,c0)=>{ if(ch0==='.')return;
+    for(let k=0;k<SPL;k++){ const ch=(k>0&&(ch0==='?'||ch0==='B'))?String(1+(c0+k)%6):ch0, c=c0*SPL+k; // 쪼개진 조각 (아이템·폭탄 벽돌은 한 조각만)
     const t='SXHB?'.includes(ch)?ch:'C';
-    bricks.push({r,c,ch,x:6+c*(bw+gap),y:top0+wallY+r*(bh+gap),w:bw,h:bh,t,hp:t==='S'?2:t==='H'?3:t==='X'?1e9:1,col:t==='C'?COLORS[ch]:{S:'#c9d2dc',X:'#ffd23f',H:'#8f5bd6',B:'#ff4d4d','?':'#ffffff'}[t],hit:0});
+    bricks.push({r,c,ch,x:6+c*(bw+gap),y:top0+wallY+r*(bh+gap),w:bw,h:bh,t,hp:t==='S'?2:t==='H'?3:t==='X'?1e9:1,col:t==='C'?COLORS[ch]:{S:'#c9d2dc',X:'#ffd23f',H:'#8f5bd6',B:'#ff4d4d','?':'#ffffff'}[t],hit:0}); }
   }));
 }
 function speed(){ return (3.3+Math.min(3.6,(stageN-1)*0.34))*MODES[mode].spd*(effects.S?0.7:1)*(effects.F?1.35:1); } // 스테이지마다 빨라짐
@@ -218,7 +226,7 @@ function hud(){
   let f=14; while(s.scrollWidth>p.clientWidth-6&&f>8){f--;s.style.fontSize=f+'px'}
 }
 function startGame(m){
-  mode=m; stageN=1; score=0; lives=MODES[m].life; effects={}; pad.w=padBase;
+  mode=m; stageN=1; score=0; lives=MODES[m].life; effects={}; pad.w=padBase; $('field').classList.remove('dead');
   startStage(); state='play'; hide('ovMode'); hide('ovTitle'); hud(); unlock();
 }
 function startStage(){ wallY=Math.min(80,(stageN-1)*8); creep=0; padBase=padW(); resize(); buildStage(); balls=[newBall()]; drops=[]; shots=[]; effects={}; pad.w=padBase; hud(); } // 스테이지마다 벽돌이 패들 쪽으로 내려옴
@@ -255,21 +263,28 @@ function unlock(){ try{ if(navigator.audioSession) navigator.audioSession.type='
 ['pointerdown','touchend','keydown'].forEach(t=>addEventListener(t,()=>{ if(!ac||ac.state!=='running') unlock(); },{passive:true}));
 /* 우주 배경음: 느린 패드 + 반짝이는 아르페지오 + 에코 */
 const BGM={g:null,dl:null,at:0,n:0,on:false};
-const CH=[[48,60,64,67,71,74,79],[45,57,60,64,67,71,76],[41,57,60,65,69,72,77],[43,59,62,67,71,74,79]]; // Cmaj7 · Am7 · Fmaj7 · G — 밝고 반짝이는 우주
+const CH=[[38,62,65,69,74],[34,58,62,65,70],[41,60,65,69,72],[36,60,64,67,72]]; // Dm · B♭ · F · C — 우주 탐험 (빠르고 두근두근)
 const mtf=m=>440*Math.pow(2,(m-69)/12);
-function bgmVoice(f,t,d,v,type,dst){ const o=ac.createOscillator(),g=ac.createGain(); o.type=type; o.frequency.value=f; g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(v,t+Math.min(.6,d*.3)); g.gain.setValueAtTime(v,t+d*.7); g.gain.linearRampToValueAtTime(0,t+d); o.connect(g).connect(dst); o.start(t); o.stop(t+d+.05); }
-function bell(f,t,v,len){ for(const [m,vv] of [[1,1],[2,.35],[3.01,.12]]){ const o=ac.createOscillator(),g=ac.createGain(); o.type='sine'; o.frequency.value=f*m; g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(v*vv,t+.008); g.gain.exponentialRampToValueAtTime(.0004,t+len/m); o.connect(g); g.connect(BGM.g); g.connect(BGM.dl); o.start(t); o.stop(t+len+.05); } }
+let NZ=null;function nz(){ if(!NZ||NZ.sampleRate!==ac.sampleRate){ const n=ac.sampleRate*.1|0; NZ=ac.createBuffer(1,n,ac.sampleRate); const d=NZ.getChannelData(0); for(let i=0;i<n;i++) d[i]=Math.random()*2-1; } return NZ; }
+function v1(type,f,t,a,d,v,dst,cut){ const o=ac.createOscillator(),g=ac.createGain(); o.type=type; o.frequency.value=f; g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(v,t+a); g.gain.exponentialRampToValueAtTime(.0005,t+a+d);
+  if(cut){ const lp=ac.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=cut; lp.Q.value=4; o.connect(lp).connect(g); } else o.connect(g); g.connect(dst); o.start(t); o.stop(t+a+d+.05); return g; }
 function bgmTick(want){
   if(!ac) return;
-  if(!BGM.g){ BGM.g=ac.createGain(); BGM.g.gain.value=0; const hp=ac.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=120; BGM.dl=ac.createDelay(1); BGM.dl.delayTime.value=.3; const fb=ac.createGain(); fb.gain.value=.32; BGM.dl.connect(fb).connect(BGM.dl); BGM.dl.connect(hp); BGM.g.connect(hp).connect(ac.destination); BGM.at=ac.currentTime+.1; }
+  if(!BGM.g){ BGM.g=ac.createGain(); BGM.g.gain.value=0; BGM.dl=ac.createDelay(1); BGM.dl.delayTime.value=.28; const fb=ac.createGain(); fb.gain.value=.3; BGM.dl.connect(fb).connect(BGM.dl); BGM.dl.connect(BGM.g); BGM.g.connect(ac.destination); BGM.at=ac.currentTime+.1; }
   const now=ac.currentTime;
-  if(want!==BGM.on){ BGM.on=want; BGM.g.gain.cancelScheduledValues(now); BGM.g.gain.setValueAtTime(BGM.g.gain.value,now); BGM.g.gain.linearRampToValueAtTime(want?.12:0,now+(want?1.2:.4)); if(want&&BGM.at<now) BGM.at=now+.05; } // 배경음악 볼륨 (한 번 더 절반)
+  if(want!==BGM.on){ BGM.on=want; BGM.g.gain.cancelScheduledValues(now); BGM.g.gain.setValueAtTime(BGM.g.gain.value,now); BGM.g.gain.linearRampToValueAtTime(want?.12:0,now+(want?.8:.4)); if(want&&BGM.at<now) BGM.at=now+.05; }
   if(!want) return;
-  const st=.19; // 16분음표 (조금 경쾌하게)
-  while(BGM.at<now+.4){ const i=BGM.n%16, c=CH[(BGM.n>>4)%4], t=BGM.at;
-    if(i===0){ for(const m of c.slice(1,4)) bgmVoice(mtf(m),t,st*16,.009,'triangle',BGM.g); bgmVoice(mtf(c[0]),t,st*16,.03,'sine',BGM.g); }
-    if(i%2===0){ const up=[1,2,3,4,5,6,5,6][(i/2)%8]; bell(mtf(c[up]),t,.02,.9); } // 위로 떠오르는 아르페지오 (한 옥타브 낮춰 편안하게)
-    if(Math.random()<.12) bell(mtf(c[4+(BGM.n%3)]+12),t+st*.5,.007,.6); // 반짝이는 별
+  const st=60/132/4; // 132 BPM 16분음표
+  while(BGM.at<now+.35){ const i=BGM.n%16, bar=(BGM.n>>4), c=CH[bar%4], t=BGM.at, sweep=900+700*Math.sin(BGM.n/24);
+    // 아르페지오 (톱니파 + 필터 스윕 + 에코) — 우주선 엔진처럼 계속 흐름
+    const ar=[1,2,3,4,3,2,1,2,3,4,3,4,2,3,4,1][i]; const g=v1('sawtooth',mtf(c[ar]),t,.004,st*1.4,.016,BGM.g,sweep); if(i%4===3) g.connect(BGM.dl);
+    // 베이스: 8분음표로 두근두근
+    if(i%2===0) v1('square',mtf(c[0]+(i%8===6?12:0)),t,.004,st*1.6,.03,BGM.g,500);
+    // 킥 (4박) · 하이햇 (뒷박)
+    if(i%4===0){ const o=ac.createOscillator(),kg=ac.createGain(); o.frequency.setValueAtTime(130,t); o.frequency.exponentialRampToValueAtTime(42,t+.12); kg.gain.setValueAtTime(.12,t); kg.gain.exponentialRampToValueAtTime(.0005,t+.18); o.connect(kg).connect(BGM.g); o.start(t); o.stop(t+.2); }
+    if(i%4===2||(bar%4===3&&i>11)){ const s=ac.createBufferSource(),hp=ac.createBiquadFilter(),hg=ac.createGain(); s.buffer=nz(); hp.type='highpass'; hp.frequency.value=8000; hg.gain.setValueAtTime(.02,t); hg.gain.exponentialRampToValueAtTime(.0005,t+.05); s.connect(hp).connect(hg).connect(BGM.g); s.start(t); s.stop(t+.06); }
+    // 2마디마다 멀리서 들리는 신호음 (탐험 느낌)
+    if(i===0&&bar%2===1){ [0,7,12].forEach((k,j)=>v1('sine',mtf(c[4]+k),t+j*st*2,.01,st*3,.012,BGM.dl)); }
     BGM.at+=st; BGM.n++; } }
 function beep(f,d=.06,type='square',v=.05){ if(!sound||!ac)return; const t=ac.currentTime,o=ac.createOscillator(),g=ac.createGain(); o.type=type; o.frequency.setValueAtTime(f,t); g.gain.setValueAtTime(v,t); g.gain.exponentialRampToValueAtTime(.001,t+d); o.connect(g).connect(ac.destination); o.start(t); o.stop(t+d+.02); }
 function tune(seq){ seq.forEach(([f,dl,d])=>setTimeout(()=>beep(f,d||.12),dl)); }
@@ -345,7 +360,7 @@ function hitBrick(br){
   for(let i=0;i<8;i++) parts.push({x:br.x+br.w/2,y:br.y+br.h/2,vx:(Math.random()-.5)*3,vy:(Math.random()-.8)*2.5,l:24,c:br.col});
   if(br.t==='B') explode(br.x+br.w/2,br.y+br.h/2);
   const goodI=ITEMS.filter(i=>!i.bad&&i.k!=='+'), badI=ITEMS.filter(i=>i.bad);
-  if(br.t==='?'||Math.random()<(mode==='easy'?.36:.28)){ // 아이템 자주
+  if(br.t==='?'||Math.random()<(mode==='easy'?.36:.28)/SPL){ // 아이템 자주
     let it=goodI[Math.floor(Math.random()*goodI.length)]; if(Math.random()<.07) it=ITEMS.find(i=>i.k==='+');
     if(br.t!=='?'&&Math.random()<(mode==='hard'||mode==='master'?.3:mode==='easy'?.14:.22)) it=badI[Math.floor(Math.random()*badI.length)]; // 나쁜 아이템
     drops.push({x:br.x+br.w/2,y:br.y,k:it.k,c:it.c,t:it.t,bad:it.bad});
@@ -384,13 +399,20 @@ function stageClear(){
 }
 function gameOver(){
   if(window.PHVS&&PHVS.active){ state='over'; PHVS.over(score,true); return; }
-  state='over'; tune([[392,0,.2],[330,180,.2],[262,360,.4]]);
+  state='over'; sadEnd(); // 비참한 게임오버: 축 처지는 트롬본 + 화면이 잿빛으로
+  $('field').classList.add('dead'); $('overInfo2').textContent=['우주 미아가 되었어요…','지구가 점점 멀어져요…','산소가 다 떨어졌어요…','통신이 끊겼어요… 응답하라…'][Math.floor(Math.random()*4)];
   lastWin={score,stage:stageN,mode,saved:false};
   $('overScore').textContent=score;
   $('overInfo').textContent=`STAGE ${stageN} · ${mode.toUpperCase()}`;
   $('nameIn').value=localStorage.getItem('bricks-name')||''; $('bSave').textContent='OK'; $('bSave').disabled=false;
-  show('ovOver'); dim(true);
+  setTimeout(()=>{ if(state==='over'){ show('ovOver'); dim(true); } },1500);
 }
+function sadEnd(){ if(!sound||!ac) return; const t=ac.currentTime+.05;
+  [[55,.45],[54,.45],[53,.45],[52,1.6]].forEach(([m,d],i)=>{ const at=t+i*.5, o=ac.createOscillator(),g=ac.createGain(),lp=ac.createBiquadFilter(),lfo=ac.createOscillator(),lg=ac.createGain();
+    o.type='sawtooth'; o.frequency.setValueAtTime(mtf(m),at); o.frequency.linearRampToValueAtTime(mtf(m)*.94,at+d); lfo.frequency.value=i===3?5:0; lg.gain.value=i===3?6:0; lfo.connect(lg).connect(o.frequency);
+    lp.type='lowpass'; lp.frequency.setValueAtTime(1400,at); lp.frequency.linearRampToValueAtTime(350,at+d); g.gain.setValueAtTime(0,at); g.gain.linearRampToValueAtTime(.09,at+.04); g.gain.setValueAtTime(.09,at+d*.7); g.gain.exponentialRampToValueAtTime(.0005,at+d);
+    o.connect(lp).connect(g).connect(ac.destination); o.start(at); o.stop(at+d+.05); lfo.start(at); lfo.stop(at+d+.05); });
+  const o=ac.createOscillator(),g=ac.createGain(); o.type='sine'; o.frequency.setValueAtTime(70,t); o.frequency.exponentialRampToValueAtTime(30,t+1.2); g.gain.setValueAtTime(.18,t); g.gain.exponentialRampToValueAtTime(.0005,t+1.3); o.connect(g).connect(ac.destination); o.start(t); o.stop(t+1.4); }
 
 /* 아이템 픽셀 아이콘 */
 const ICONS={
@@ -510,7 +532,7 @@ function togglePause(){ if(window.PHVS&&PHVS.active&&state==='play') return;
 }
 $('bPause').onclick=togglePause; $('bResume').onclick=togglePause;
 $('bRestart').onclick=()=>{hide('ovPause');startGame(mode)};
-function toMenu(){ ['ovPause','ovOver','ovRank'].forEach(hide); state='title'; bricks=[]; balls=[]; drops=[]; shots=[]; show('ovTitle'); dim(false); draw(); }
+function toMenu(){ $('field').classList.remove('dead'); ['ovPause','ovOver','ovRank'].forEach(hide); state='title'; bricks=[]; balls=[]; drops=[]; shots=[]; show('ovTitle'); dim(false); draw(); }
 $('bMenu').onclick=toMenu; $('bMenu2').onclick=toMenu;
 $('bRetry').onclick=()=>{hide('ovOver');dim(false);startGame(mode)};
 $('bSound').onclick=()=>{sound=!sound;$('bSound').classList.toggle('on',sound);$('bSound').classList.toggle('off',!sound);unlock();localStorage.setItem('bricks-sound',sound?1:0)};
