@@ -408,7 +408,7 @@ function draw(){
   for(const k in effects){ const it=ITEMS.find(i=>i.k===k); if(!it)continue; const left=Math.ceil((effects[k]-now)/1000);
     icon(k,ex+8,11,1.1,it.c); x.fillStyle=it.c; x.font='700 8px Silkscreen, monospace'; x.textAlign='left'; x.textBaseline='middle'; x.fillText(left,ex+17,11.5); ex+=38; }
   if(state==='play'&&balls.some(b=>b.stuck)){ x.fillStyle='rgba(200,240,176,'+(.5+.5*Math.sin(now/250))+')'; x.font='700 9px Silkscreen, monospace'; x.textAlign='center'; x.fillText('TAP TO LAUNCH',W/2,pad.y-40); }
-  if(state==='clear'){ x.save(); x.shadowColor='#7dffb0'; x.shadowBlur=20; x.fillStyle='#fff'; x.font='14px "Press Start 2P", monospace'; x.textAlign='center'; x.fillText('STAGE CLEAR',W/2,H/2); x.restore(); }
+  if(state==='clear'){ x.save(); x.shadowColor='#7dffb0'; x.shadowBlur=20; x.fillStyle='#fff'; x.font='700 20px Silkscreen, monospace'; x.textAlign='center'; x.fillText('STAGE CLEAR',W/2,H/2); x.restore(); }
 }
 
 /* UI */
