@@ -147,39 +147,40 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 const RANK_URL='https://script.google.com/macros/s/AKfycbzkdjVleobj98oyxlC77cUf5txCRiSB6D1zgRWU56pX22ElXAx9R8xFRGnV0nKAUbwC/exec';
 const $=id=>document.getElementById(id);
 const COLORS={1:'#e8284f',2:'#f26a0d',3:'#f2b000',4:'#10b870',5:'#00a8e0',6:'#8a3cf0'};
-const COLS=10;
-// 스테이지 배치: 1~6 색 벽돌(1번), S 은색(2번), X 금색(안 깨짐), . 빈칸
+const COLS=7; // 통통한 벽돌: 7칸
+// 스테이지 배치: 1~6 색 벽돌 · S 은색(2번) · H 단단(3번) · B 폭탄(주변 함께 터짐) · ? 아이템 상자 · X 금색(안 깨짐) · . 빈칸
 const STAGES=[
- ["1111111111","2222222222","3333333333","4444444444","5555555555","6666666666"],
- ["....11....","...2222...","..333333..",".44444444.","5555555555",".66666666.","..555555..","...4444..."],
- ["1.1.1.1.1.",".2.2.2.2.2","3.3.3.3.3.",".4.4.4.4.4","5.5.5.5.5.",".6.6.6.6.6"],
- ["SSSSSSSSSS","1111111111","2222..2222","3333..3333","4444444444","..X....X.."],
- ["66......66","665....566","6655..5566","6655445566","..554455..","...4334...","....22....","....11...."],
- ["1111111111","S........S","S.222222.S","S.2XXXX2.S","S.222222.S","S........S","3333333333"],
- ["5.5.5.5.5.","SSSSSSSSSS",".4.4.4.4.4","6666666666","3.3.3.3.3.","XX..XX..XX","2222222222"],
- ["..111111..",".1222222S.","123333332.","1234XX4321","123333321.",".1222221..","..111111.."],
- ["SXSXSXSXSX","1111111111","2222222222","3333333333","SSSSSSSSSS","4444444444","5555555555"],
- ["6S6S6S6S6S","S5S5S5S5S5","4S4S4S4S4S","S3S3S3S3S3","2S2S2S2S2S","S1S1S1S1S1","X..X..X..X"],
+ ["1111111","2222222","3333333"],
+ ["..1?1..",".22222.","3333333",".44444."],
+ ["5?555?5","6666666","S.S.S.S"],
+ ["1B11B11","2222222","..3?3..","4444444"],
+ ["H.H.H.H","5555555","6?666?6",".SSSSS."],
+ ["X1111X.","..2B2..","3333333","S.?.?.S"],
+ ["6H6H6H6","5555555","4B444B4","33?3?33"],
+ ["SSSSSSS","1?1B1?1","HHHHHHH","2222222"],
+ ["X.H.H.X","3B333B3","4444444","5?5H5?5","6666666"],
+ ["HHHHHHH","S1S1S1S","2B2?2B2","3333333","X.....X"],
 ];
 const MODES={easy:{life:5,mul:.5,spd:.85},normal:{life:3,mul:1,spd:1},hard:{life:2,mul:2,spd:1.2},master:{life:1,mul:3,spd:1.4}};
 const ITEMS=[
  {k:'W',c:'#00e0ff',t:'WIDE'},{k:'M',c:'#c06bff',t:'MULTI'},{k:'L',c:'#ff4d6d',t:'LASER'},
  {k:'S',c:'#ffd23f',t:'SLOW'},{k:'2',c:'#ff9a3d',t:'×2'},{k:'+',c:'#ff6bd6',t:'LIFE'},
- {k:'N',c:'#a0a4ab',t:'SHORT',bad:1},{k:'F',c:'#ff2a2a',t:'FAST',bad:1}];
+ {k:'P',c:'#ff7a1a',t:'FIRE'},{k:'C',c:'#7dffb0',t:'CATCH'},{k:'K',c:'#ff5a5a',t:'BOMB'},
+ {k:'N',c:'#a0a4ab',t:'SHORT',bad:1},{k:'F',c:'#ff2a2a',t:'FAST',bad:1},{k:'R',c:'#8f96a3',t:'REVERSE',bad:1}];
 
 const cv=$('cv'),x=cv.getContext('2d');
 let W=300,H=460,dpr=1;
 let mode='normal',stageN=1,score=0,lives=3,bricks=[],balls=[],drops=[],shots=[],parts=[];
 let pad={x:150,tx:150,w:56,h:8,y:0},padBase=56,state='title',effects={},laserCD=0,lastT=0,sound=true;
-let bw,bh,top0=34,gap=3,lastWin=null;
+let bw,bh,top0=34,gap=4,lastWin=null,wallY=0,creep=0;
 
 function resize(){
   const r=$('field').getBoundingClientRect(); dpr=Math.min(3,devicePixelRatio||1);
   W=300; H=Math.max(380,Math.round(W*r.height/r.width));
   cv.width=r.width*dpr; cv.height=r.height*dpr;
   x.setTransform(cv.width/W,0,0,cv.height/H,0,0);
-  pad.y=H-Math.max(60,Math.round(H*.14)); /* 손가락에 가리지 않게 바닥에서 띄움 */ bw=(W-12-gap*(COLS-1))/COLS; bh=12; top0=Math.max(30,Math.round(H*.08));
-  for(const b of bricks){b.y=top0+b.r*(bh+gap);}
+  pad.y=H-Math.max(60,Math.round(H*.14)); /* 손가락에 가리지 않게 바닥에서 띄움 */ bw=(W-12-gap*(COLS-1))/COLS; bh=20; top0=Math.max(30,Math.round(H*.08));
+  for(const b of bricks){b.y=top0+wallY+b.r*(bh+gap);b.h=bh;}
   for(const b of bricks){b.x=6+b.c*(bw+gap);b.w=bw;}
   draw();
 }
@@ -190,14 +191,15 @@ if(window.ResizeObserver) new ResizeObserver(resize).observe($('field'));
 function buildStage(){
   const L=STAGES[(stageN-1)%STAGES.length]; bricks=[];
   L.forEach((row,r)=>[...row].forEach((ch,c)=>{ if(ch==='.')return;
-    const t=ch==='S'?'S':ch==='X'?'X':'C';
-    bricks.push({r,c,x:6+c*(bw+gap),y:top0+r*(bh+gap),w:bw,h:bh,t,hp:t==='S'?2:t==='X'?1e9:1,col:t==='C'?COLORS[ch]:t==='S'?'#c9d2dc':'#ffd23f',hit:0});
+    const t='SXHB?'.includes(ch)?ch:'C';
+    bricks.push({r,c,ch,x:6+c*(bw+gap),y:top0+wallY+r*(bh+gap),w:bw,h:bh,t,hp:t==='S'?2:t==='H'?3:t==='X'?1e9:1,col:t==='C'?COLORS[ch]:{S:'#c9d2dc',X:'#ffd23f',H:'#8f5bd6',B:'#ff4d4d','?':'#ffffff'}[t],hit:0});
   }));
 }
-function speed(){ return (3.2+Math.min(2.6,(stageN-1)*0.28))*MODES[mode].spd*(effects.S?0.7:1)*(effects.F?1.35:1); }
+function speed(){ return (3.3+Math.min(3.6,(stageN-1)*0.34))*MODES[mode].spd*(effects.S?0.7:1)*(effects.F?1.35:1); } // 스테이지마다 빨라짐
+function padW(){ return Math.max(40,56-(stageN-1)*2); } // 스테이지마다 패들 조금씩 짧아짐
 function newBall(stuck=true){ pad.tx=pad.x;
    return {x:pad.x,y:pad.y-6,vx:0,vy:0,r:4,stuck}; }
-function launch(){ for(const b of balls) if(b.stuck){ const a=(-60+Math.random()*30)*Math.PI/180; const s=speed(); b.vx=Math.sin(a+Math.PI/6)*s; b.vy=-Math.cos(a+Math.PI/6)*s; b.stuck=false; } }
+function launch(){ for(const b of balls) if(b.stuck){ b.off=0; const a=(-60+Math.random()*30)*Math.PI/180; const s=speed(); b.vx=Math.sin(a+Math.PI/6)*s; b.vy=-Math.cos(a+Math.PI/6)*s; b.stuck=false; } }
 const PIX={
  pause:['........','.11..11.','.11..11.','.11..11.','.11..11.','.11..11.','.11..11.','........'],
  note:['....111.','....1111','....1..1','....1...','....1...','.1111...','11111...','.111....'],
@@ -218,7 +220,7 @@ function startGame(m){
   mode=m; stageN=1; score=0; lives=MODES[m].life; effects={}; pad.w=padBase;
   startStage(); state='play'; hide('ovMode'); hide('ovTitle'); hud(); unlock();
 }
-function startStage(){ resize(); buildStage(); balls=[newBall()]; drops=[]; shots=[]; effects={}; pad.w=padBase; hud(); }
+function startStage(){ wallY=Math.min(80,(stageN-1)*8); creep=0; padBase=padW(); resize(); buildStage(); balls=[newBall()]; drops=[]; shots=[]; effects={}; pad.w=padBase; hud(); } // 스테이지마다 벽돌이 패들 쪽으로 내려옴
 function addScore(n){ score+=Math.round(n*MODES[mode].mul*(effects['2']?2:1)); hud(); }
 
 /* 입력 */
@@ -232,12 +234,12 @@ cv.addEventListener('pointermove',e=>{
   if(!drag||drag.id!==e.pointerId)return;
   const r=cv.getBoundingClientRect(); const dx=(e.clientX-drag.sx)*W/r.width;
   if(Math.abs(dx)>3) drag.moved=true;
-  pad.tx=clampPad(drag.px+dx*1.15);
+  pad.tx=clampPad(drag.px+dx*1.15*(effects.R?-1:1));
 });
 cv.addEventListener('pointerup',e=>{ if(!drag)return; const d=drag; drag=null;
   if(e.pointerType==='mouse'||!d.moved||performance.now()-d.t<180) launch(); });
 cv.addEventListener('pointercancel',()=>drag=null);
-function movePadTo(e){ const r=cv.getBoundingClientRect(); pad.tx=clampPad((e.clientX-r.left)*W/r.width); }
+function movePadTo(e){ const r=cv.getBoundingClientRect(); const v=(e.clientX-r.left)*W/r.width; pad.tx=clampPad(effects.R?W-v:v); }
 function clampPad(v){ return Math.max(pad.w/2+2,Math.min(W-pad.w/2-2,v)); }
 const keys={};
 addEventListener('keydown',e=>{ keys[e.key]=1; if(e.key===' '&&state==='play'){e.preventDefault();launch();} if((e.key==='p'||e.key==='Escape')&&(state==='play'||state==='pause')) togglePause(); });
@@ -256,17 +258,17 @@ function loop(t){
   draw(); requestAnimationFrame(loop);
 }
 function update(k){
-  const kv=(keys.ArrowLeft?-1:0)+(keys.ArrowRight?1:0); if(kv) pad.tx=clampPad(pad.tx+kv*6*k);
+  const kv=((keys.ArrowLeft?-1:0)+(keys.ArrowRight?1:0))*(effects.R?-1:1); if(kv) pad.tx=clampPad(pad.tx+kv*6*k);
   pad.tx=clampPad(pad.tx); pad.x+=(pad.tx-pad.x)*Math.min(1,.5*k); if(Math.abs(pad.tx-pad.x)<.05) pad.x=pad.tx;
   const now=performance.now();
-  for(const e in effects) if(effects[e]<now){ delete effects[e]; if(e==='W'||e==='N') pad.w=padBase; if(e==='S'||e==='F') rescale(); }
+  for(const e in effects) if(effects[e]<now){ delete effects[e]; if(e==='W'||e==='N') pad.w=padBase; if(e==='S'||e==='F') rescale(); if(e==='C') launch(); }
   // 레이저
   if(effects.L){ laserCD-=k; if(laserCD<=0){ laserCD=14; shots.push({x:pad.x-pad.w/2+4,y:pad.y-4},{x:pad.x+pad.w/2-4,y:pad.y-4}); beep(880,.04,'square',.025);} }
   for(const s of shots){ s.y-=7*k; for(const b of bricks){ if(s.y<b.y+b.h&&s.y>b.y&&s.x>b.x&&s.x<b.x+b.w){ hitBrick(b); s.dead=1; break; } } if(s.y<0)s.dead=1; }
   shots=shots.filter(s=>!s.dead);
   // 공
   for(const b of balls){
-    if(b.stuck){ b.x=pad.x; b.y=pad.y-b.r-1; continue; }
+    if(b.stuck){ b.x=pad.x+(b.off||0); b.y=pad.y-b.r-1; continue; }
     const sp=Math.hypot(b.vx,b.vy), n=Math.ceil(sp*k/2);
     for(let i=0;i<n;i++){ step(b,k/n); if(b.dead)break; }
   }
@@ -277,6 +279,10 @@ function update(k){
   drops=drops.filter(d=>!d.dead);
   for(const p of parts){ p.x+=p.vx*k; p.y+=p.vy*k; p.vy+=.08*k; p.l-=k; }
   parts=parts.filter(p=>p.l>0);
+  // 3스테이지부터 벽돌이 조금씩 내려옴
+  if(stageN>=3&&bricks.length){ creep+=k; const iv=60*Math.max(5,16-stageN); if(creep>=iv){ creep=0; wallY+=5; for(const br of bricks) br.y+=5; } }
+  const low=bricks.reduce((m,br)=>br.t==='X'?m:Math.max(m,br.y+br.h),0);
+  if(low>pad.y-24){ wallY-=40; for(const br of bricks) br.y-=40; lives--; hud(); beep(160,.3,'sawtooth',.06); if(lives<=0) return gameOver(); }
   if(!bricks.some(b=>b.t!=='X')) stageClear();
 }
 function step(b,k){
@@ -288,13 +294,14 @@ function step(b,k){
   // 패들
   if(b.vy>0&&b.y+b.r>=pad.y&&b.y+b.r<=pad.y+pad.h+6&&Math.abs(b.x-pad.x)<=pad.w/2+b.r){
     const off=(b.x-pad.x)/(pad.w/2), a=Math.max(-1,Math.min(1,off))*62*Math.PI/180, s=Math.hypot(b.vx,b.vy);
-    b.vx=Math.sin(a)*s; b.vy=-Math.cos(a)*s; b.y=pad.y-b.r; beep(520,.04); return;
+    b.vx=Math.sin(a)*s; b.vy=-Math.cos(a)*s; b.y=pad.y-b.r; beep(520,.04); if(effects.C){ b.stuck=true; b.off=b.x-pad.x; } return;
   }
   // 벽돌
   for(const br of bricks){
     const cx=Math.max(br.x,Math.min(b.x,br.x+br.w)), cy=Math.max(br.y,Math.min(b.y,br.y+br.h));
     const dx=b.x-cx, dy=b.y-cy;
     if(dx*dx+dy*dy<=b.r*b.r){
+      if(effects.P&&br.t!=='X'){ br.hp=1; hitBrick(br); continue; } // 불공: 뚫고 지나감
       const ox=Math.min(b.x+b.r-br.x, br.x+br.w-(b.x-b.r)), oy=Math.min(b.y+b.r-br.y, br.y+br.h-(b.y-b.r));
       if(ox<oy){ b.vx=b.x<br.x+br.w/2?-Math.abs(b.vx):Math.abs(b.vx); } else { b.vy=b.y<br.y+br.h/2?-Math.abs(b.vy):Math.abs(b.vy); }
       hitBrick(br);
@@ -309,19 +316,21 @@ function hitBrick(br){
   br.hp--; br.hit=8;
   if(br.hp>0){ beep(900,.04,'triangle'); addScore(20); return; }
   br.dead=1; bricks=bricks.filter(b=>!b.dead);
-  addScore(br.t==='S'?120:50+(5-Math.min(5,br.r))*10);
+  addScore(br.t==='S'?120:br.t==='H'?200:br.t==='?'?100:br.t==='B'?80:50+(5-Math.min(5,br.r))*10);
   beep(620+Math.random()*300,.05);
   for(let i=0;i<8;i++) parts.push({x:br.x+br.w/2,y:br.y+br.h/2,vx:(Math.random()-.5)*3,vy:(Math.random()-.8)*2.5,l:24,c:br.col});
-  if(Math.random()<(mode==='easy'?.2:.15)){
-    let it=ITEMS[Math.floor(Math.random()*5)]; if(Math.random()<.08) it=ITEMS[5];
-    if(Math.random()<(mode==='hard'||mode==='master'?.38:mode==='easy'?.22:.3)) it=ITEMS[6+Math.floor(Math.random()*2)]; // 나쁜 아이템
+  if(br.t==='B') explode(br.x+br.w/2,br.y+br.h/2);
+  const goodI=ITEMS.filter(i=>!i.bad&&i.k!=='+'), badI=ITEMS.filter(i=>i.bad);
+  if(br.t==='?'||Math.random()<(mode==='easy'?.36:.28)){ // 아이템 자주
+    let it=goodI[Math.floor(Math.random()*goodI.length)]; if(Math.random()<.07) it=ITEMS.find(i=>i.k==='+');
+    if(br.t!=='?'&&Math.random()<(mode==='hard'||mode==='master'?.3:mode==='easy'?.14:.22)) it=badI[Math.floor(Math.random()*badI.length)]; // 나쁜 아이템
     drops.push({x:br.x+br.w/2,y:br.y,k:it.k,c:it.c,t:it.t,bad:it.bad});
   }
 }
 function take(k){
-  const bad=k==='N'||k==='F';
+  const bad=k==='N'||k==='F'||k==='R';
   if(bad) tune([[400,0],[300,80],[200,160]]); else tune([[660,0],[880,70],[1100,140]]);
-  const until=performance.now()+(k==='S'?9000:k==='L'?7000:k==='2'?10000:k==='F'?8000:k==='N'?10000:12000);
+  const until=performance.now()+(k==='S'?9000:k==='L'?7000:k==='2'?10000:k==='F'?8000:k==='N'?10000:k==='P'?7000:k==='R'?6000:12000);
   if(k==='W'){ pad.w=padBase*1.6; effects.W=until; delete effects.N; pad.tx=clampPad(pad.tx); }
   else if(k==='N'){ pad.w=padBase*.6; effects.N=until; delete effects.W; pad.tx=clampPad(pad.tx); }
   else if(k==='F'){ effects.F=until; delete effects.S; rescale(); }
@@ -331,6 +340,16 @@ function take(k){
   else if(k==='S'){ effects.S=until; delete effects.F; rescale(); }
   else if(k==='2'){ effects['2']=until; }
   else if(k==='+'){ lives++; hud(); }
+  else if(k==='P'){ effects.P=until; } // 불공: 벽돌 뚫기
+  else if(k==='C'){ effects.C=until; } // 공 붙잡기
+  else if(k==='R'){ effects.R=until; } // 좌우 반대
+  else if(k==='K'){ const c=bricks.filter(o=>o.t!=='X'); if(c.length){ const o=c[Math.floor(Math.random()*c.length)]; explode(o.x+o.w/2,o.y+o.h/2); } }
+}
+function explode(cx,cy){ // 폭탄: 주변 벽돌 함께 터짐
+  for(let i=0;i<14;i++) parts.push({x:cx,y:cy,vx:(Math.random()-.5)*5,vy:(Math.random()-.5)*5,l:28,c:i%2?'#ffd23f':'#ff4d4d'});
+  beep(90,.25,'sawtooth',.08);
+  const hit=bricks.filter(o=>!o.dead&&o.t!=='X'&&Math.abs(o.x+o.w/2-cx)<bw*1.6&&Math.abs(o.y+o.h/2-cy)<bh*1.8);
+  for(const o of hit){ if(o.dead)continue; o.hp=1; hitBrick(o); }
 }
 function rescale(){ const s=speed(); for(const b of balls){ if(b.stuck)continue; const c=Math.hypot(b.vx,b.vy)||1; b.vx*=s/c; b.vy*=s/c; } }
 function stageClear(){
@@ -356,7 +375,11 @@ const ICONS={
  S:['1111111','.11111.','..111..','...1...','..111..','.11111.','1111111'],
  '2':['1...1.111','.1.1....1','..1...111','.1.1..1..','1...1.111'],
  '+':['.11.11.','1111111','1111111','.11111.','..111..','...1...'],
- F:['1..1..1...','.1..1..1..','..1..1..1.','.1..1..1..','1..1..1...']};
+ F:['1..1..1...','.1..1..1..','..1..1..1.','.1..1..1..','1..1..1...'],
+ P:['...1...','..11...','..111..','.11111.','.11.11.','11...11','.11111.'],
+ C:['11...11','11...11','11...11','11...11','.11111.','..111..'],
+ K:['....11.','...1...','.11111.','1111111','1111111','1111111','.11111.'],
+ R:['.1.....','1111111','.1.....','.......','.....1.','1111111','.....1.']};
 function icon(k,cx,cy,px,c){ const m=ICONS[k]; if(!m)return; const w=m[0].length*px,h=m.length*px;
   x.save(); x.shadowColor=c; x.shadowBlur=6; x.fillStyle=k==='+'?c:'#fff';
   m.forEach((row,r)=>[...row].forEach((v,i)=>{ if(v==='1') x.fillRect(Math.round((cx-w/2+i*px)*4)/4,Math.round((cy-h/2+r*px)*4)/4,px,px); }));
@@ -364,6 +387,28 @@ function icon(k,cx,cy,px,c){ const m=ICONS[k]; if(!m)return; const w=m[0].length
 
 /* 그리기 */
 function rr(X,Y,w,h,r){ x.beginPath(); x.roundRect(X,Y,w,h,r); }
+function drawBrick(b){ // 통통한 벽돌 · 종류마다 다른 무늬
+  const X=b.x,Y=b.y,w=b.w,h=b.h,t=performance.now();
+  let col=b.col; if(b.t==='?'){ col=`hsl(${(t/8+b.c*40)%360},85%,60%)`; }
+  x.save(); x.shadowColor=col; x.shadowBlur=b.hit?22:10; rr(X,Y,w,h,5); x.fillStyle=col; x.fill(); x.restore();
+  x.fillStyle='rgba(255,255,255,.32)'; rr(X+2,Y+1.5,w-4,4,2); x.fill();
+  x.fillStyle='rgba(0,0,0,.25)'; rr(X+2,Y+h-4.5,w-4,3,1.5); x.fill();
+  const cx=X+w/2,cy=Y+h/2;
+  if(b.t==='C'){ x.save(); const d=+b.ch;
+    if(d===1){ x.fillStyle='rgba(255,255,255,.35)'; for(const k of[-1,0,1]){ x.beginPath(); x.arc(cx+k*w*.27,cy,3.2,0,7); x.fill(); } } // 블록 돌기
+    else if(d===2){ x.fillStyle='rgba(0,0,0,.18)'; for(let s=X+6;s<X+w-4;s+=7){ x.fillRect(s,Y+6,3,h-11); } } // 세로 줄무늬
+    else if(d===3){ x.fillStyle='rgba(255,255,255,.4)'; for(let s=X+7;s<X+w-4;s+=8) for(let q=Y+8;q<Y+h-5;q+=6){ x.fillRect(s,q,2,2); } } // 점무늬
+    else if(d===4){ x.fillStyle='rgba(255,255,255,.45)'; x.beginPath(); x.moveTo(cx,Y+5); x.lineTo(cx+7,cy); x.lineTo(cx,Y+h-5); x.lineTo(cx-7,cy); x.closePath(); x.fill(); } // 보석
+    else if(d===5){ x.fillStyle='rgba(255,255,255,.35)'; x.beginPath(); x.ellipse(X+w*.32,cy-1,w*.18,h*.22,-.3,0,7); x.fill(); } // 물방울 광택
+    else { x.strokeStyle='rgba(0,0,0,.22)'; x.lineWidth=1.5; x.beginPath(); x.moveTo(X+3,cy); x.lineTo(X+w-3,cy); x.moveTo(cx,Y+5); x.lineTo(cx,cy); x.moveTo(X+w*.25,cy); x.lineTo(X+w*.25,Y+h-4); x.moveTo(X+w*.75,cy); x.lineTo(X+w*.75,Y+h-4); x.stroke(); } // 벽돌 쌓기
+    x.restore(); }
+  else if(b.t==='S'){ x.fillStyle='rgba(60,70,80,.55)'; for(const [a,c] of [[5,6],[w-5,6],[5,h-6],[w-5,h-6]]){ x.beginPath(); x.arc(X+a,Y+c,1.6,0,7); x.fill(); }
+    if(b.hp===1){ x.strokeStyle='rgba(0,0,0,.5)'; x.lineWidth=1.2; x.beginPath(); x.moveTo(X+w*.3,Y+3); x.lineTo(X+w*.5,cy); x.lineTo(X+w*.42,Y+h-3); x.stroke(); } }
+  else if(b.t==='H'){ x.fillStyle='#fff'; for(let i=0;i<b.hp;i++){ x.beginPath(); x.arc(cx+(i-(b.hp-1)/2)*8,cy,2.6,0,7); x.fill(); } }
+  else if(b.t==='B'){ x.fillStyle='#2a0c13'; x.beginPath(); x.arc(cx,cy+1,5.5,0,7); x.fill(); x.strokeStyle='#ffd23f'; x.lineWidth=1.5; x.beginPath(); x.moveTo(cx+3,cy-4); x.quadraticCurveTo(cx+6,cy-8,cx+8,cy-6); x.stroke(); x.fillStyle='#fff6a8'; x.fillRect(cx+7,cy-8,2,2); }
+  else if(b.t==='?'){ x.fillStyle='#fff'; x.font='700 12px Silkscreen, monospace'; x.textAlign='center'; x.textBaseline='middle'; x.fillText('?',cx,cy+1); }
+  else if(b.t==='X'){ x.strokeStyle='rgba(120,80,0,.6)'; x.lineWidth=1.5; x.strokeRect(X+4,Y+4,w-8,h-8); }
+}
 function draw(){
   x.clearRect(0,0,W,H);
   // 격자
@@ -371,16 +416,7 @@ function draw(){
   for(let i=0;i<=W;i+=15){x.beginPath();x.moveTo(i,0);x.lineTo(i,H);x.stroke()}
   for(let j=0;j<=H;j+=15){x.beginPath();x.moveTo(0,j);x.lineTo(W,j);x.stroke()}
   // 벽돌 (블록 질감 + 네온 발광)
-  for(const b of bricks){
-    x.save(); x.shadowColor=b.col; x.shadowBlur=b.hit?22:12;
-    rr(b.x,b.y,b.w,b.h,2.5); x.fillStyle=b.col; x.fill(); x.restore();
-    x.fillStyle='rgba(255,255,255,.35)'; x.fillRect(b.x+1.5,b.y+1,b.w-3,2);
-    x.fillStyle='rgba(0,0,0,.28)'; x.fillRect(b.x+1.5,b.y+b.h-3,b.w-3,2);
-    x.fillStyle='rgba(255,255,255,.55)'; x.fillRect(b.x+2.5,b.y+3.5,2,2);
-    if(b.t==='S'&&b.hp===1){ x.strokeStyle='rgba(0,0,0,.45)'; x.lineWidth=1; x.beginPath(); x.moveTo(b.x+b.w*.3,b.y+2); x.lineTo(b.x+b.w*.5,b.y+b.h/2); x.lineTo(b.x+b.w*.4,b.y+b.h-2); x.stroke(); }
-    if(b.t==='X'){ x.strokeStyle='rgba(120,80,0,.6)'; x.strokeRect(b.x+3,b.y+3,b.w-6,b.h-6); }
-    if(b.hit) b.hit--;
-  }
+  for(const b of bricks){ drawBrick(b); if(b.hit) b.hit--; }
   // 파편
   for(const p of parts){ x.globalAlpha=p.l/24; x.fillStyle=p.c; x.fillRect(p.x,p.y,2.5,2.5); } x.globalAlpha=1;
   // 아이템
