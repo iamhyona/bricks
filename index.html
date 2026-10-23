@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ko">
-<head>
+<head><script>/* 옛 버전 캐시 자동 갱신 */(function(){var V="1792745641";try{fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){var m=t.match(/var V="(\d+)"/);if(m&&m[1]!==V&&location.search.indexOf("v="+m[1])<0){location.replace(location.pathname+"?v="+m[1])}}).catch(function(){})}catch(e){}})();</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>BRICKS · 벽돌깨기</title>
@@ -449,8 +449,9 @@ function planet(b){ const P=PLANETS[b.pt||0], R=b.r; /* 플랫한 행성 + 글�
   x.save(); x.beginPath(); x.arc(b.x,b.y,R,0,7); x.clip(); x.fillStyle=P[1];
   if((b.pt||0)===0){ x.beginPath(); x.ellipse(b.x-R*.3,b.y+R*.1,R*.45,R*.32,.5,0,7); x.ellipse(b.x+R*.5,b.y-R*.35,R*.32,R*.2,-.3,0,7); x.ellipse(b.x+R*.35,b.y+R*.65,R*.4,R*.18,0,0,7); x.fill(); } // 지구: 대륙
   else { x.fillRect(b.x-R,b.y-R*.15,R*2,R*.32); x.fillRect(b.x-R,b.y+R*.45,R*2,R*.22); }
+  const sh=x.createRadialGradient(b.x-R*.4,b.y-R*.45,R*.1,b.x,b.y,R*1.05); sh.addColorStop(0,'rgba(255,255,255,.35)'); sh.addColorStop(.45,'rgba(255,255,255,0)'); sh.addColorStop(1,'rgba(0,0,40,.42)'); x.fillStyle=sh; x.fillRect(b.x-R,b.y-R,R*2,R*2); // 살짝 입체감
   x.restore();
-  x.strokeStyle='rgba(255,255,255,.7)'; x.lineWidth=1.2; x.beginPath(); x.arc(b.x,b.y,R-.6,0,7); x.stroke();
+  x.strokeStyle='rgba(255,255,255,.45)'; x.lineWidth=1; x.beginPath(); x.arc(b.x,b.y,R-.5,0,7); x.stroke();
   x.fillStyle='rgba(255,255,255,.8)'; x.beginPath(); x.arc(b.x-R*.42,b.y-R*.42,R*.18,0,7); x.fill();
   if(b.ring) ring(0); }
 const LBL={W:'WIDE',M:'MULTI',L:'LASER',S:'SLOW','2':'DOUBLE',P:'FIRE','+':'1 UP',C:'CATCH',K:'BOMB',N:'SHORT',F:'FAST',R:'REVERSE'};
