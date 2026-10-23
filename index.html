@@ -96,7 +96,7 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 </style>
 <script>/* 카톡 등 인앱 브라우저: 실제 보이는 높이로 화면 맞춤 */(function(){var d=document.documentElement;function f(){d.style.setProperty('--app-h',window.innerHeight+'px')}f();addEventListener('resize',f);addEventListener('orientationchange',function(){setTimeout(f,300)});addEventListener('pageshow',f);setTimeout(f,250);setTimeout(f,1000)})();</script>
 <style>html,body{height:var(--app-h,100dvh)!important}</style>
-<link rel="stylesheet" href="../games/ph.css?v=1"><style>#ovTitle{--phB:#3d6b48;--phT:#c8f0b0;--phBg:#0f1c14;--phR:rgba(125,255,176,.12);--phC:rgba(200,240,176,.45);padding:0!important}</style></head>
+<link rel="stylesheet" href="../games/ph.css?v=4"><style>#ovTitle{--phB:#3d6b48;--phT:#c8f0b0;--phBg:#0f1c14;--phR:rgba(125,255,176,.12);--phC:rgba(200,240,176,.45);padding:0!important}</style></head>
 <body>
 <div class="gb">
   <div class="lcd-label"><i class="ln"></i><span class="copy">© 2026 PARK HYONA</span><i class="ln"></i></div>
@@ -116,6 +116,7 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
       <button class="btn easy" data-m="easy">EASY MODE<small>SCORE ×0.5 · LIFE 5</small></button>
       <button class="btn" data-m="normal">NORMAL MODE<small>SCORE ×1 · LIFE 3</small></button>
       <button class="btn hard" data-m="hard">HARD MODE<small>SCORE ×2 · LIFE 2</small></button>
+      <button class="btn master" data-m="master">MASTER MODE<small>SCORE ×3 · LIFE 1 · 공 1.4배</small></button>
       <button class="x" data-close="ovMode">✕</button>
     </div>
     <div class="ov" id="ovPause">
@@ -160,7 +161,7 @@ const STAGES=[
  ["SXSXSXSXSX","1111111111","2222222222","3333333333","SSSSSSSSSS","4444444444","5555555555"],
  ["6S6S6S6S6S","S5S5S5S5S5","4S4S4S4S4S","S3S3S3S3S3","2S2S2S2S2S","S1S1S1S1S1","X..X..X..X"],
 ];
-const MODES={easy:{life:5,mul:.5,spd:.85},normal:{life:3,mul:1,spd:1},hard:{life:2,mul:2,spd:1.2}};
+const MODES={easy:{life:5,mul:.5,spd:.85},normal:{life:3,mul:1,spd:1},hard:{life:2,mul:2,spd:1.2},master:{life:1,mul:3,spd:1.4}};
 const ITEMS=[
  {k:'W',c:'#00e0ff',t:'WIDE'},{k:'M',c:'#c06bff',t:'MULTI'},{k:'L',c:'#ff4d6d',t:'LASER'},
  {k:'S',c:'#ffd23f',t:'SLOW'},{k:'2',c:'#ff9a3d',t:'×2'},{k:'+',c:'#ff6bd6',t:'LIFE'},
@@ -313,7 +314,7 @@ function hitBrick(br){
   for(let i=0;i<8;i++) parts.push({x:br.x+br.w/2,y:br.y+br.h/2,vx:(Math.random()-.5)*3,vy:(Math.random()-.8)*2.5,l:24,c:br.col});
   if(Math.random()<(mode==='easy'?.2:.15)){
     let it=ITEMS[Math.floor(Math.random()*5)]; if(Math.random()<.08) it=ITEMS[5];
-    if(Math.random()<(mode==='hard'?.38:mode==='easy'?.22:.3)) it=ITEMS[6+Math.floor(Math.random()*2)]; // 나쁜 아이템
+    if(Math.random()<(mode==='hard'||mode==='master'?.38:mode==='easy'?.22:.3)) it=ITEMS[6+Math.floor(Math.random()*2)]; // 나쁜 아이템
     drops.push({x:br.x+br.w/2,y:br.y,k:it.k,c:it.c,t:it.t,bad:it.bad});
   }
 }
@@ -425,8 +426,8 @@ if(localStorage.getItem('bricks-sound')==='0'){sound=false;$('bSound').classList
 document.addEventListener('visibilitychange',()=>{ if(document.hidden&&state==='play') togglePause(); });
 
 /* 랭킹 */
-const MODEK={easy:'EASY',normal:'NORMAL',hard:'HARD','이지':'EASY','노멀':'NORMAL','하드':'HARD'};
-const MODEC={EASY:'#7fe0ff',NORMAL:'#c8f0b0',HARD:'#ff8aa0'};
+const MODEK={easy:'EASY',normal:'NORMAL',hard:'HARD',master:'MASTER','이지':'EASY','노멀':'NORMAL','하드':'HARD','마스터':'MASTER'};
+const MODEC={EASY:'#ffd84d',NORMAL:'#7fd9ff',HARD:'#ff8aa0',MASTER:'#c9a6ff'};
 function local(){ try{return JSON.parse(localStorage.getItem('bricks-ranks')||'[]')}catch(e){return[]} }
 $('bSave').onclick=async()=>{
   if(!lastWin||lastWin.saved)return; const n=($('nameIn').value.trim()||'익명').slice(0,8);
@@ -456,5 +457,5 @@ if(location.hash==='#test') window.__t={clear:()=>{bricks=bricks.filter(b=>b.t==
 resize(); hud(); requestAnimationFrame(loop);
 })();
 </script>
-<script src="../games/ph.js?v=1"></script></body>
+<script src="../games/ph.js?v=4"></script></body>
 </html>
