@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ko">
-<head><style>html.phL body{visibility:hidden}</style><script>/* 글꼴·최신 버전 확인될 때까지 잠깐 가리기 (옛 글꼴·옛 화면 깜빡임 방지) */(function(){var d=document.documentElement,n=2;d.classList.add("phL");function o(){d.classList.remove("phL")}window.__phDone=function(){if(--n<=0)o()};setTimeout(o,1200);function f(){try{var F=document.fonts;Promise.all([F.load('700 14px "Silkscreen"'),F.load('12px "Galmuri11"'),F.load('8px "Press Start 2P"')]).then(function(){return F.ready}).then(window.__phDone,window.__phDone)}catch(e){o()}}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",f);else f()})();</script><script>/* 옛 버전 캐시 자동 갱신 */(function(){var V="1792751367";try{fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){var m=t.match(/var V="(\d+)"/);if(m&&m[1]!==V&&location.search.indexOf("v="+m[1])<0){location.replace(location.pathname+"?v="+m[1])}if(!(m&&m[1]!==V)&&window.__phDone)__phDone()}).catch(function(){window.__phDone&&__phDone()})}catch(e){window.__phDone&&__phDone()}})();</script>
+<head><style>html.phL body{visibility:hidden}</style><script>/* 글꼴·최신 버전 확인될 때까지 잠깐 가리기 (옛 글꼴·옛 화면 깜빡임 방지) */(function(){var d=document.documentElement,n=2;d.classList.add("phL");function o(){d.classList.remove("phL")}window.__phDone=function(){if(--n<=0)o()};setTimeout(o,1200);function f(){try{var F=document.fonts;Promise.all([F.load('700 14px "Silkscreen"'),F.load('12px "Galmuri11"'),F.load('8px "Press Start 2P"')]).then(function(){return F.ready}).then(window.__phDone,window.__phDone)}catch(e){o()}}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",f);else f()})();</script><script>/* 옛 버전 캐시 자동 갱신 */(function(){var V="1792755461";try{fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){var m=t.match(/var V="(\d+)"/);if(m&&m[1]!==V&&location.search.indexOf("v="+m[1])<0){location.replace(location.pathname+"?v="+m[1])}if(!(m&&m[1]!==V)&&window.__phDone)__phDone()}).catch(function(){window.__phDone&&__phDone()})}catch(e){window.__phDone&&__phDone()}})();</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>BRICKS · 벽돌깨기</title>
@@ -100,7 +100,12 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 .field.dead{animation:bkDead .6s ease-out}
 @keyframes bkDead{0%{transform:translate(0,0)}10%{transform:translate(-9px,6px)}20%{transform:translate(8px,-5px)}30%{transform:translate(-7px,4px)}45%{transform:translate(5px,-3px)}60%{transform:translate(-3px,2px)}80%{transform:translate(2px,-1px)}100%{transform:translate(0,0)}}
 .field.dead::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 60%,rgba(255,40,70,.35),rgba(0,0,0,.4) 70%);animation:bkRed 1.4s ease-out forwards;pointer-events:none;z-index:3}
-@keyframes bkRed{0%{opacity:0}15%{opacity:1}100%{opacity:.55}}</style></head>
+@keyframes bkRed{0%{opacity:0}15%{opacity:1}100%{opacity:.55}}
+/* 레벨별 테두리 색: EASY 노랑 · NORMAL 하늘 · HARD 빨강 · MASTER 보라 */
+.field[data-m=easy]{border-color:#f2b000!important;box-shadow:0 0 16px rgba(242,176,0,.35)!important}
+.field[data-m=normal]{border-color:#00a8e0!important;box-shadow:0 0 16px rgba(0,168,224,.35)!important}
+.field[data-m=hard]{border-color:#e8284f!important;box-shadow:0 0 16px rgba(232,40,79,.38)!important}
+.field[data-m=master]{border-color:#8a3cf0!important;box-shadow:0 0 16px rgba(138,60,240,.42)!important}</style></head>
 <body>
 <div class="gb">
   <div class="lcd-label"><i class="ln"></i><span class="copy">© 2026 PARK HYONA</span><i class="ln"></i></div>
@@ -205,7 +210,7 @@ function buildStage(){
 }
 function speed(){ return (3.3+Math.min(3.6,(stageN-1)*0.34))*MODES[mode].spd*(effects.S?0.7:1)*(effects.F?1.35:1); } // 스테이지마다 빨라짐
 function padW(){ return Math.max(52,72-(stageN-1)*2); } // 스테이지마다 패들 조금씩 짧아짐
-function ballR(){ return {easy:18,normal:13,hard:9,master:6}[mode]||13; } // 행성 공 · 레벨별로 크기 차이 확실하게
+function ballR(){ return {easy:18,normal:13,hard:7,master:5}[mode]||13; } // 행성 공 · 레벨별로 크기 차이 확실하게
 function newBall(stuck=true){ pad.tx=pad.x;
    return {x:pad.x,y:pad.y-6,vx:0,vy:0,r:ballR(),stuck,pt:0}; } // 기본 공은 지구
 function launch(){ for(const b of balls) if(b.stuck){ b.off=0; const a=(-60+Math.random()*30)*Math.PI/180; const s=speed(); b.vx=Math.sin(a+Math.PI/6)*s; b.vy=-Math.cos(a+Math.PI/6)*s; b.stuck=false; } }
@@ -226,7 +231,7 @@ function hud(){
   let f=14; while(s.scrollWidth>p.clientWidth-6&&f>8){f--;s.style.fontSize=f+'px'}
 }
 function startGame(m){
-  mode=m; stageN=1; score=0; lives=MODES[m].life; effects={}; pad.w=padBase; $('field').classList.remove('dead');
+  mode=m; stageN=1; score=0; lives=MODES[m].life; effects={}; pad.w=padBase; $('field').classList.remove('dead'); $('field').dataset.m=m; // 레벨별 테두리 색
   startStage(); state='play'; hide('ovMode'); hide('ovTitle'); hud(); unlock();
 }
 function startStage(){ wallY=Math.min(80,(stageN-1)*8); creep=0; padBase=padW(); resize(); buildStage(); balls=[newBall()]; drops=[]; shots=[]; effects={}; pad.w=padBase; hud(); } // 스테이지마다 벽돌이 패들 쪽으로 내려옴
@@ -532,7 +537,7 @@ function togglePause(){ if(window.PHVS&&PHVS.active&&state==='play') return;
 }
 $('bPause').onclick=togglePause; $('bResume').onclick=togglePause;
 $('bRestart').onclick=()=>{hide('ovPause');startGame(mode)};
-function toMenu(){ $('field').classList.remove('dead'); ['ovPause','ovOver','ovRank'].forEach(hide); state='title'; bricks=[]; balls=[]; drops=[]; shots=[]; show('ovTitle'); dim(false); draw(); }
+function toMenu(){ $('field').classList.remove('dead'); delete $('field').dataset.m; ['ovPause','ovOver','ovRank'].forEach(hide); state='title'; bricks=[]; balls=[]; drops=[]; shots=[]; show('ovTitle'); dim(false); draw(); }
 $('bMenu').onclick=toMenu; $('bMenu2').onclick=toMenu;
 $('bRetry').onclick=()=>{hide('ovOver');dim(false);startGame(mode)};
 $('bSound').onclick=()=>{sound=!sound;$('bSound').classList.toggle('on',sound);$('bSound').classList.toggle('off',!sound);unlock();localStorage.setItem('bricks-sound',sound?1:0)};
