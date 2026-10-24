@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ko">
-<head><style>html.phL body{visibility:hidden}</style><script>/* 글꼴·최신 버전 확인될 때까지 잠깐 가리기 (옛 글꼴·옛 화면 깜빡임 방지) */(function(){var d=document.documentElement,n=2;d.classList.add("phL");function o(){d.classList.remove("phL")}window.__phDone=function(){if(--n<=0)o()};setTimeout(o,1200);function f(){try{var F=document.fonts;Promise.all([F.load('700 14px "Silkscreen"'),F.load('12px "Galmuri11"'),F.load('8px "Press Start 2P"')]).then(function(){return F.ready}).then(window.__phDone,window.__phDone)}catch(e){o()}}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",f);else f()})();</script><script>/* 옛 버전 캐시 자동 갱신 */(function(){var V="1792831000";try{fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){var m=t.match(/var V="(\d+)"/);if(m&&m[1]!==V&&location.search.indexOf("v="+m[1])<0){location.replace(location.pathname+"?v="+m[1])}if(!(m&&m[1]!==V)&&window.__phDone)__phDone()}).catch(function(){window.__phDone&&__phDone()})}catch(e){window.__phDone&&__phDone()}})();</script>
+<head><style>html.phL body{visibility:hidden}</style><script>/* 글꼴·최신 버전 확인될 때까지 잠깐 가리기 (옛 글꼴·옛 화면 깜빡임 방지) */(function(){var d=document.documentElement,n=2;d.classList.add("phL");function o(){d.classList.remove("phL")}window.__phDone=function(){if(--n<=0)o()};setTimeout(o,1200);function f(){try{var F=document.fonts;Promise.all([F.load('700 14px "Silkscreen"'),F.load('12px "Galmuri11"'),F.load('8px "Press Start 2P"')]).then(function(){return F.ready}).then(window.__phDone,window.__phDone)}catch(e){o()}}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",f);else f()})();</script><script>/* 옛 버전 캐시 자동 갱신 */(function(){var V="1792848000";try{fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){var m=t.match(/var V="(\d+)"/);if(m&&m[1]!==V&&location.search.indexOf("v="+m[1])<0){location.replace(location.pathname+"?v="+m[1])}if(!(m&&m[1]!==V)&&window.__phDone)__phDone()}).catch(function(){window.__phDone&&__phDone()})}catch(e){window.__phDone&&__phDone()}})();</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>BRICKS · 벽돌깨기</title>
@@ -92,6 +92,7 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 .help{font:12px/1.8 Galmuri11,sans-serif;color:var(--g2)}
 .flash{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 0 0 rgba(150,170,255,0);z-index:4}
 .flash.go{animation:fl .9s}
+.allc{position:absolute;left:0;right:0;top:34%;z-index:5;text-align:center;pointer-events:none;animation:acIn .7s cubic-bezier(.2,1.6,.4,1) both}.allc b{display:block;font:700 34px Silkscreen,monospace;letter-spacing:.04em;background:linear-gradient(90deg,#e8284f,#f26a0d,#f2b000,#10b870,#00a8e0,#8a3cf0,#e8284f);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 10px rgba(255,255,255,.5));animation:acRb 1.2s linear infinite}.allc small{display:block;margin-top:8px;font:700 11px Silkscreen,monospace;color:#fff;letter-spacing:.2em;animation:acBl .5s steps(2) infinite}@keyframes acIn{from{transform:scale(.2);opacity:0}to{transform:scale(1);opacity:1}}@keyframes acRb{to{background-position:200% 0}}@keyframes acBl{50%{opacity:.4}}
 @keyframes fl{30%{box-shadow:inset 0 0 40px 10px rgba(150,170,255,.6)}}
 </style>
 <script>/* 카톡 등 인앱 브라우저: 실제 보이는 높이로 화면 맞춤 */(function(){var d=document.documentElement;function f(){d.style.setProperty('--app-h',window.innerHeight+'px')}f();addEventListener('resize',f);addEventListener('orientationchange',function(){setTimeout(f,300)});addEventListener('pageshow',f);setTimeout(f,250);setTimeout(f,1000)})();</script>
@@ -155,18 +156,7 @@ const COLORS={1:'#e8284f',2:'#f26a0d',3:'#f2b000',4:'#10b870',5:'#00a8e0',6:'#8a
 const COLS=7; // 통통한 벽돌: 7칸
 let SPL=1; const splitN=()=>({easy:1,normal:stageN>=4?2:1,hard:2,master:stageN>=4?3:2}[mode]||1); // 어려울수록 벽돌이 쪼개져 많아짐
 // 스테이지 배치: 1~6 색 벽돌 · S 은색(2번) · H 단단(3번) · B 폭탄(주변 함께 터짐) · ? 아이템 상자 · X 금색(안 깨짐) · . 빈칸
-const STAGES=[
- ["1111111","2222222","3333333"],
- ["..1?1..",".22222.","3333333",".44444."],
- ["5?555?5","6666666","S.S.S.S"],
- ["1B11B11","2222222","..3?3..","4444444"],
- ["H.H.H.H","5555555","6?666?6",".SSSSS."],
- ["X1111X.","..2B2..","3333333","S.?.?.S"],
- ["6H6H6H6","5555555","4B444B4","33?3?33"],
- ["SSSSSSS","1?1B1?1","HHHHHHH","2222222"],
- ["X.H.H.X","3B333B3","4444444","5?5H5?5","6666666"],
- ["HHHHHHH","S1S1S1S","2B2?2B2","3333333","X.....X"],
-];
+const STAGES=[["1111111","2222222","3333333"],["..1?1..",".22222.","3333333",".44444."],["5?555?5","6666666","S.S.S.S"],["1B11B11","2222222","..3?3..","4444444"],["H.H.H.H","5555555","6?666?6",".SSSSS."],["X1111X.","..2B2..","3333333","S.?.?.S"],["6H6H6H6","5555555","4B444B4","33?3?33"],["SSSSSSS","1?1B1?1","HHHHHHH","2222222"],["X.H.H.X","3B333B3","4444444","5?5H5?5","6666666"],["HHHHHHH","S1S1S1S","2B2?2B2","3333333","X.....X"],["1111111","...2...","3333333","...B..."],["?33333?",".44444.","..555..","...H..."],["...2...","..S3S..",".?BSB?.","5?5?5?5"],["3333333","4..4..4","..555..",".66.66.","1B...B1"],["S.1.1.S",".2.B.2.","S.3.3.S","4444444"],["H.B.B.H","1.1.1.1","2.2.2.2","B.S.S.B"],["5555555","6.S6S.6","?.....?","2222222"],["1111111","...2...","3B3?3B3","...4...","5555555"],["5B5S5B5","6.....6","1.111.1","2.....2","3.....3","4444444"],["6.B.B.6","1.S.S.1","2.2.2.2","B.3.3.B","S.S.S.S"],["1.1.1.1",".2.2.2.","3.3.3.3",".4.4.4.","5.S.S.5","6666666"],["111?111","...?...","33?S?33","...4...","55S5S55","...6..."],["6?666?6","1111111","2222222","?33333?"],["6.6.6.6","?.H.H.?","?.S.S.?","B.3.3.B","4.S.S.4"],["..4.4..","S?5S5?S","66.S.66","1111111",".2...2.","3.....3"],["..444..",".55555.","6666666",".HS1SH.","..2?2.."],["3333333","4..4..4","..5S5..",".X?.?X.","1S...S1","2..2..2"],["5HS5SH5","6.....6","B.111.B","2.....2","333?333"],["55H5H55","S..6..S","1.1.1.1","..222..","3?333?3"],["S.5S5.S","6S666S6","11...11","..222..",".3S.S3."],["3333333","4BHSHB4",".55H55.","..666..","...1..."],["...2...","..3S3..",".S444S.","B55555B","S6SBS6S"],["1111111","...2...","BX3?3XB","...4...","5X555X5","...H..."],[".22.22.","X??3??X","4444444",".55H55.","..6B6..","...?..."],["...B...","..333..",".44444.","55H5H55","66H6H66"],["33H3H33","44S?S44",".X555X.","..666..","...1..."],["1.1.1.1",".2.?.2.","H.S.S.H",".4.H.4.","5S5?5S5"],["..B4B..",".S5S5S.","6S6?6S6",".H111H.","..222.."],["?3HSH3?","4..4..4","..555..",".6S.S6.","H1...1H"],["..4.4..","5555555","6?.X.?6","11S1S11",".S...S.","S.....S"],["..H4H..",".S555S.","6S666S6",".X111X.","..B2B.."],["6666666","11B1B11","2B2?2B2","33HSH33"],["H.?.?.H",".2.?.2.","X.3.3.X",".H.H.H.","5?555?5"],["HB555BH","6.....6","S.111.S","2.....2","3H333H3"],["33BHB33","4..4..4","..XXX..",".66.66.","1H...H1","2..2..2"],["BB3?3BB","4..S..4","..?5?..",".66.66.","11...11","H..S..H","..333.."],[".?S.S?.","S33333S","S44B44S",".55555.","..666..","...H..."],[".22.22.","S33H33S","4444444",".55H55.","..S6S..","...1..."],["33BSB33","4..4..4","..HHH..",".6X.X6.","S?...?S","2..2..2"],["..4.4..","SH?S?HS","S6.H.6S","?1B1B1?",".2...2.","3.....3"],["...2...","..S3S..",".?4S4?.","5HH5HH5","6SB6BS6"],["..4.4..","5??H??5","SH.B.HS","S11111S",".2...2.","S.....S"],["H.6.6.H","1.1.1.1","S.X.X.S","H.3.3.H","S.4.4.S","5.5.5.5"],["S55555S","?6B.B6?","HS...SH","222H222","33...33"],["1H1H1H1","...2...","3X3H3X3","...H...","5S555S5","...B..."],["S.X.X.S",".X.2.X.","3.H.H.3",".4.4.4.","5.5.5.5","66SHS66"],["33S3S33","H44444H","555H555",".66666.","..1H1..","...2..."],["..HHH..",".X555X.","H6H6H6H",".1?S?1.","..2?2.."],[".2S.S2.","H3S3S3H","4444444",".?HSH?.","..6?6..","...1..."],[".BS.SB.","H?333?H","B44444B",".HSBSH.","..BHB..","...?..."],["?.?.?.?","H.1.1.H","2.S.S.2","3.H.H.3","H.4.4.H","H.5.5.H"],["1.S.S.1",".S.S.S.","?.B.B.?",".H.4.H.","5.?.?.5",".S.S.S.","S11111S"],["H1S1S1H","...2...","3X3H3X3","...4...","5SHSHS5","...H..."],["H.1.1.H",".2.2.2.","?.S.S.?",".X.H.X.","S.5.5.S",".?.6.?.","S?1S1?S"],["?H3H3H?","H..4..H","..BHB..",".S?.?S.","S1...1S","H..B..H"],["H.?.?.H",".2.S.2.","H.H.H.H",".4.H.4.","H.5.5.H","6666666"],["6666666","111X111","2SS2SS2","X33S33X","44S4S44"],["SX333XS","SS4S4SS","SH5B5HS",".66S66.","..111..","...2..."],["H.H.H.H","H.B.B.H","H.S.S.H","3.S.S.3","S.B.B.S","5.5.5.5"],[".2S.S2.","3H3S3H3","SS444SS",".XHBHX.","..S6S..","...1..."],["X66666X","1111111","H?S2S?H","3S333S3","44S4S44"],["..4.4..","HB5S5BH","66.?.66","11H1H11",".?...?.","?.....?","HS4?4SH"],["..S4S..",".HSSSH.","X66666X","1?H?H?1",".BX2XB.","..BBB.."],["H5S5S5H","6.....6","?.....?","S.S2S.S","H.....H","4.....4","H5S5S5H"],["?HSBSH?","H..4..H","..5?5..",".6S.S6.","11...11","H..H..H","..H?H.."],["S.H.H.S","1.S.S.1","X.S.S.X","3.H.H.3","4.4.4.4","?.S.S.?","H.6.6.H"],["55SHS55","H.....H","H.SSS.H","2.....2","S.....S","H4HSH4H"],["..H.H..","SBBXBBS","6B.S.B6","S1S1S1S",".2...2.","H.....H","44H4H44"],["..4H4..",".5SHS5.","6HSHSH6","H11?11H",".SSBSS.","..?3?.."],["..H.H..","5555555","66.H.66","1?B1B?1",".H...H.","H.....H","SSS4SSS"],["H.H.H.H",".2.2.2.","?.S.S.?",".X.S.X.","5.5.5.5",".S.H.S.","1HSSSH1"],["H.6.6.H","H.X.X.H","S.2.2.S","3.3.3.3","4.H.H.4","S.H.H.S","H.?.?.H"],["3SS3SS3","4444444","H5?H?5H","6HS6SH6",".11S11.","..222..","...S..."],["55HSH55","H.....H","1.....1","H.2S2.H","3.....3","?.....?","HHHHHHH"],["SSHSHSS","S.....S","1.....1","H.HSH.H","3.....3","4.....4","SH?H?HS"],["SH1H1HS","...H...","HBHXHBH","...4...","H55555H","...H...","111S111"],["HS.5.SH","6H6.6H6","1XX.XX1","H22.22H","33HHH33","4.444.4"],["SH5.5HS","H.?.?.H","B.1.1.B","BHSHSHB",".B?3?B.","HHB4BHH"],["...2...","..SHS..",".44444.","55H5H55","SHHHHHS","SSHSHSS"],[".22.22.","SSS3SSS","SH?B?HS",".H?5?H.","..S6S..","...B...","2HH2HH2"],[".2S.S2.","3SHXHS3","44SSS44",".55555.","..?H?..","...1...","HHSHSHH"],["S55B55S","B..?..B","S1H.H1S","22S.S22","SH.H.HS","4.SHS.4","??5B5??"],["...2...","..3?3..",".4SSS4.","5HHBHH5","?6H6H6?","1HHXHH1","2222222"],["H?1S1?H","...S...","HSHSHSH","...X...","SBBHBBS","...6...","HHBSBHH"],["SS6H6SS","1111111","HX?2?XH","H?HHH?H","44B4B44","S55555S"],["S5.H.5S","66S6S66","SS.1.SS",".2S2S2.","H?H.H?H","4.X.X.4","S5SSS5S"],["5.SSS.5","B..?..B","S.S1S.S","HS2S2SH","S3.3.3S",".S4H4S.","SHH.HHS"],["..S4S..",".5H5H5.","HXH6HXH","S1B1B1S","SH222HS",".H3S3H.","..4S4.."],["...X...","..SBS..",".?SBS?.","5H5S5H5","H6HSH6H","S?XSX?S","HSB2BSH"],["..S.S..","SHH5HHS","HH.?.HH","X11?11X",".H...H.","X.....X","4HSHSH4"],["..B4B..",".BS5SB.","HH?H?HH","1H1H1H1","HSHSHSH",".3SSS3.","..444.."],["...2...","..333..",".4HSH4.","HS555SH","H6H?H6H","HXXSXXH","22HHH22"],["3H333H3","HS444SH","HH5B5HH","SSH6HSS",".1HHH1.","..XSX..","...H..."],["..XHX..",".X5S5X.","S6HHH6S","SS?S?SS","SSHHHSS",".XHHHX.","..BSB.."],["...H...","..X3X..",".H444H.","HHSHSHH","H6XSX6H","BS?H?SB","SHSHSHS"],["HH3S3HH","SH?4?HS","5H555H5","XSH6HSX",".H1H1H.","..HHH..","...H..."],["S66666S","HHSHSHH","?2HHH2?","3SHSHS3","4SS4SS4","HH5S5HH"],["HSHSHSH","4HHHHH4","XHSHSHX","H6BHB6H",".HSSSH.","..SBS..","...3..."],["HHXSXHH","11HSH11","X?S2S?X","S3HSH3S","4H?B?H4","555?555","H6HHH6H"],["6HSSSH6","1?SSS?1","2HS2SH2","S3HHH3S","HS4S4SH","S5SHS5S","H6SSS6H"],["H?6H6?H","HX111XH","SSHSHSS","SSHHHSS","S4H?H4S","H5SSS5H","6SS6SS6"]]; /* 서로 다른 배치 111개 · 뒤로 갈수록 단단한 벽돌·금색 벽돌·줄 수가 늘어남 */
 const MODES={easy:{life:5,mul:.5,spd:.85},normal:{life:3,mul:1,spd:1.2},hard:{life:2,mul:2,spd:1.55},master:{life:1,mul:3,spd:1.9}}; /* 레벨별 속도 차이 크게 */
 const ITEMS=[
  {k:'W',c:'#00e0ff',t:'WIDE'},{k:'M',c:'#c06bff',t:'MULTI'},{k:'L',c:'#ff4d6d',t:'LASER'},
@@ -229,7 +219,7 @@ function startGame(m){
   mode=m; stageN=1; score=0; lives=MODES[m].life; effects={}; pad.w=padBase; $('field').classList.remove('dead');
   startStage(); state='play'; hide('ovMode'); hide('ovTitle'); hud(); unlock();
 }
-function startStage(){ wallY=Math.min(80,(stageN-1)*8); creep=0; padBase=padW(); resize(); buildStage(); balls=[newBall()]; drops=[]; shots=[]; effects={}; pad.w=padBase; hud(); } // 스테이지마다 벽돌이 패들 쪽으로 내려옴
+function startStage(){ wallY=Math.max(0,Math.min(80-Math.max(0,STAGES[(stageN-1)%STAGES.length].length-5)*22,(stageN-1)*8)); /* 줄이 많은 판은 덜 내려와서 시작 */ creep=0; padBase=padW(); resize(); buildStage(); balls=[newBall()]; drops=[]; shots=[]; effects={}; pad.w=padBase; hud(); } // 스테이지마다 벽돌이 패들 쪽으로 내려옴
 function addScore(n){ score+=Math.round(n*MODES[mode].mul*(effects['2']?2:1)); hud(); }
 
 /* 입력 */
@@ -293,6 +283,7 @@ function tune(seq){ seq.forEach(([f,dl,d])=>setTimeout(()=>beep(f,d||.12),dl)); 
 function loop(t){
   const dt=Math.min(32,t-(lastT||t)); lastT=t;
   if(state==='play') update(dt/16.67);
+  else if(state==='fin'){ const k=dt/16.67; for(const p of parts){ p.x+=p.vx*k; p.y+=p.vy*k; p.vy+=.045*k; p.vx*=.99; p.l-=k*.8; } parts=parts.filter(p=>p.l>0); } /* 올 클리어 불꽃놀이 */
   try{ bgmTick(sound&&(state==='play'||state==='clear')); }catch(e){}
   draw(); requestAnimationFrame(loop);
 }
@@ -394,10 +385,24 @@ function rescale(){ const s=speed(); for(const b of balls){ if(b.stuck)continue;
 function stageClear(){
   state='clear'; addScore(1000*1);
   if(window.PHVS&&PHVS.active){ if(stageN>=3){ state='over'; PHVS.claimWin(score); return; } PHVS.send({t:'atk'}); } /* 대전: 3스테이지 먼저 깨면 승리, 깰 때마다 상대에게 방해 아이템 */ $('flash').classList.remove('go'); void $('flash').offsetWidth; $('flash').classList.add('go');
+  if(stageN>=STAGES.length){ allClear(); return; } /* 111스테이지 끝 */
   tune([[523,0],[659,90],[784,180],[1047,270,.25]]);
   setTimeout(()=>{ stageN++; startStage(); state='play'; },1100);
 }
-function gameOver(){
+function allClear(){ /* 111스테이지 올 클리어: 불꽃놀이 + 무지개 글자 + 팡파레 */
+  state='fin'; addScore(50000); balls=[]; drops=[]; shots=[];
+  const cols=['#e8284f','#f26a0d','#f2b000','#10b870','#00a8e0','#8a3cf0','#ffffff'];
+  const fire=()=>{ const cx=24+Math.random()*(W-48), cy=40+Math.random()*H*.5; for(let i=0;i<40;i++){ const a=i/40*6.283, s=1.6+Math.random()*2.6; parts.push({x:cx,y:cy,vx:Math.cos(a)*s,vy:Math.sin(a)*s,l:40+Math.random()*24,c:cols[(i+(cx|0))%7]}); } beep(300+Math.random()*700,.18,'triangle',.05); };
+  for(let i=0;i<4;i++) setTimeout(fire,i*140); const fw=setInterval(fire,320);
+  tune([[523,0],[659,130],[784,260],[1047,390,.2],[784,600],[1047,730],[1319,860,.2],[1568,1060,.6],[2093,1700,.5]]);
+  $('flash').classList.remove('go'); void $('flash').offsetWidth; $('flash').classList.add('go');
+  const d=document.createElement('div'); d.className='allc'; d.innerHTML='<b>ALL CLEAR!</b><small>111 STAGES · '+mode.toUpperCase()+'</small>'; $('field').appendChild(d);
+  setTimeout(()=>{ clearInterval(fw); d.remove(); state='over';
+    lastWin={score,stage:111,mode,saved:false};
+    $('overTitle').textContent='ALL CLEAR!'; $('overScore').textContent=score; $('overInfo').textContent=`STAGE 111 · ${mode.toUpperCase()}`; $('overInfo2').textContent='우주의 벽돌을 모두 깼어요! 무사히 지구로 귀환!';
+    $('nameIn').value=localStorage.getItem('bricks-name')||''; $('bSave').textContent='OK'; $('bSave').disabled=false; show('ovOver'); dim(true); },5200);
+}
+function gameOver(){ $('overTitle').textContent='GAME OVER';
   if(window.PHVS&&PHVS.active){ state='over'; PHVS.over(score,true); return; }
   state='over'; sadEnd(); // 비참한 게임오버: 축 처지는 트롬본 + 화면이 잿빛으로
   $('field').classList.add('dead'); $('overInfo2').textContent=['우주 미아가 되었어요…','지구가 점점 멀어져요…','산소가 다 떨어졌어요…','통신이 끊겼어요… 응답하라…'][Math.floor(Math.random()*4)];
