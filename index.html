@@ -83,7 +83,7 @@ body.bkNoFx .field.dead::after{display:none!important}
 </style>
 <script>/* 카톡 등 인앱 브라우저: 실제 보이는 높이로 화면 맞춤 */(function(){var d=document.documentElement;function f(){d.style.setProperty('--app-h',window.innerHeight+'px')}f();addEventListener('resize',f);addEventListener('orientationchange',function(){setTimeout(f,300)});addEventListener('pageshow',f);setTimeout(f,250);setTimeout(f,1000)})();</script>
 <style>html,body{height:var(--app-h,100dvh)!important}</style>
-<link rel="stylesheet" href="../games/ph.css?v=15"><style>#ovTitle{--phB:#4a4f9a;--phT:#dfe4ff;--phBg:#11132a;--phR:rgba(150,170,255,.12);--phC:rgba(220,226,255,.45);padding:0!important}</style><script src="../games/vs.js?v=2"></script><style>.field.dead canvas{filter:grayscale(1) brightness(.55) contrast(1.1);transition:filter 1.2s ease}
+<link rel="stylesheet" href="../games/ph.css?v=16"><style>#ovTitle{--phB:#4a4f9a;--phT:#dfe4ff;--phBg:#11132a;--phR:rgba(150,170,255,.12);--phC:rgba(220,226,255,.45);padding:0!important}</style><script src="../games/vs.js?v=2"></script><style>.field.dead canvas{filter:grayscale(1) brightness(.55) contrast(1.1);transition:filter 1.2s ease}
 .field.dead{animation:bkDead .6s ease-out}
 @keyframes bkDead{0%{transform:translate(0,0)}10%{transform:translate(-9px,6px)}20%{transform:translate(8px,-5px)}30%{transform:translate(-7px,4px)}45%{transform:translate(5px,-3px)}60%{transform:translate(-3px,2px)}80%{transform:translate(2px,-1px)}100%{transform:translate(0,0)}}
 .field.dead::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 60%,rgba(255,40,70,.35),rgba(0,0,0,.4) 70%);animation:bkRed 1.4s ease-out forwards;pointer-events:none;z-index:3}
@@ -591,5 +591,5 @@ if(location.hash==='#test') window.__t={clear:()=>{bricks=bricks.filter(b=>b.t==
 resize(); hud(); requestAnimationFrame(loop);
 })();
 </script>
-<script src="../games/ph.js?v=25"></script></body>
+<script src="../games/ph.js?v=26"></script></body>
 </html>
