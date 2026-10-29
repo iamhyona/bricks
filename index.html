@@ -529,7 +529,7 @@ PHVS.init({id:'bricks',name:()=>localStorage.getItem('bricks-name')||'',setName:
  data:d=>{if(d.t==='atk'&&state==='play'){const bad=['N','F','R'][Math.floor(Math.random()*3)];take(bad);window.phPop&&phPop($('field'),'ATTACK!',null,'atk','d2');}},
  stop:()=>{state='over'},leave:()=>toMenu()});
 $('bVs').onclick=()=>{unlock();PHVS.menu()};
-function markDiff(){ const last=(window.phPref&&phPref.get('diff','normal'))||'normal'; /* 지난번 난이도 미리 선택 (없으면 NORMAL) */
+function markDiff(){ const last='normal'; /* 지난번 난이도 미리 선택 (없으면 NORMAL) */
   document.querySelectorAll('#ovMode [data-m]').forEach(b=>b.classList.toggle('last',b.dataset.m===last)); }
 $('bStart').onclick=()=>{unlock();markDiff();show('ovMode');const l=document.querySelector('#ovMode .last');if(l)try{l.focus({preventScroll:true})}catch(e){}};
 document.querySelectorAll('#ovMode [data-m]').forEach(b=>b.onclick=()=>phTut('bricks-tut',{"goal": "공을 튕겨서 벽돌을 모두 깨면 다음 스테이지!<br>공을 놓치면 목숨이 하나 줄어요.", "touch": [["드래그", "패들 옮기기"], ["탭", "공 발사"]], "pc": [["마우스 / ← →", "패들 옮기기"], ["클릭 / SPACE", "공 발사"]]},()=>startGame(b.dataset.m)));
