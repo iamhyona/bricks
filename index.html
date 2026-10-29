@@ -508,7 +508,7 @@ function draw(){
     if(effects.L){ x.fillStyle='#ff4d6d'; x.fillRect(pad.x-pad.w/2+2,pad.y-3,4,3); x.fillRect(pad.x+pad.w/2-6,pad.y-3,4,3); }
   }
   // 공 방향선 (설정에서 켜기/끄기): 발사 전 공이 날아갈 길을 점선으로 · 벽에 한 번 튕기는 것까지
-  if(PREF.guide&&state==='play') for(const b of balls) if(b.stuck) aimLine(b);
+  if(PREF.guide&&mode==='easy'&&state==='play') for(const b of balls) if(b.stuck) aimLine(b);
   // 공
   for(const b of balls){ if(b.pt==null) b.pt=Math.floor(Math.random()*PLANETS.length); planet(b); } // 공 = 행성
   if(POP){ const a=(performance.now()-POP.at)/1100; if(a>=1) POP=null; else { const yy=pad.y-72-a*26; window.phPopDraw&&phPopDraw(x,POP.t,W/2,yy,20*U,POP.bad?'warn':'item',1-a*a); } } /* 아이템 이름: 공통 팝업 (d2 · 아이템 분홍 / 나쁜 아이템 빨강) */
@@ -553,7 +553,7 @@ $('bSet').onclick=()=>{ unlock(); if(!window.phSettings) return; const vs=vsOn()
 function initSettings(){ if(!window.phPref||!window.phSettings) return;
   PREF.guide=!!phPref.get('guide',true); PREF.spd=Math.max(0,Math.min(2,phPref.get('speed',1)|0)); PREF.fx=!!phPref.get('fx',true); applyFx();
   phSettings.config({
-    guide:{label:'공 방향선',get:()=>PREF.guide,set:v=>{PREF.guide=!!v;pSet('guide',PREF.guide)}},
+    guide:{label:'공 방향선 · EASY',get:()=>PREF.guide,set:v=>{PREF.guide=!!v;pSet('guide',PREF.guide)}},
     speed:{get:()=>PREF.spd,set:v=>{PREF.spd=v|0;pSet('speed',PREF.spd);rescale()}},
     fx:{get:()=>PREF.fx,set:v=>{PREF.fx=!!v;pSet('fx',PREF.fx);applyFx()}} });
   try{ localStorage.removeItem('bricks-sound'); }catch(e){} /* 옛 소리 하나짜리 설정은 배경음·효과음으로 나뉨 */
