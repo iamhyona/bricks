@@ -73,7 +73,7 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 .help{font:12px/1.8 Galmuri11,sans-serif;color:var(--g2)}
 .flash{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 0 0 rgba(150,170,255,0);z-index:4}
 .flash.go{animation:fl .9s}
-.allc{position:absolute;inset:0;pointer-events:none;z-index:5}.allc .phPop{top:38%}
+.allc{position:absolute;left:0;right:0;top:34%;z-index:5;text-align:center;pointer-events:none;animation:acIn .7s cubic-bezier(.2,1.6,.4,1) both}.allc b{display:block;font:700 34px Silkscreen,monospace;letter-spacing:.04em;background:linear-gradient(90deg,#e8284f,#f26a0d,#f2b000,#10b870,#00a8e0,#8a3cf0,#e8284f);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 10px rgba(255,255,255,.5));animation:acRb 1.2s linear infinite}.allc small{display:block;margin-top:8px;font:700 11px Silkscreen,monospace;color:#fff;letter-spacing:.2em;animation:acBl .5s steps(2) infinite}@keyframes acIn{from{transform:scale(.2);opacity:0}to{transform:scale(1);opacity:1}}@keyframes acRb{to{background-position:200% 0}}@keyframes acBl{50%{opacity:.4}}
 /* 지난번 고른 난이도 표시 */
 html body #ovMode .phDiff.phDiff.phDiff.last{background:color-mix(in srgb,var(--b) 16%,#12142a)!important;box-shadow:0 0 14px color-mix(in srgb,var(--b) 40%,transparent)!important}
 /* 화면 효과 끄기 */
@@ -83,7 +83,7 @@ body.bkNoFx .field.dead::after{display:none!important}
 </style>
 <script>/* 카톡 등 인앱 브라우저: 실제 보이는 높이로 화면 맞춤 */(function(){var d=document.documentElement;function f(){d.style.setProperty('--app-h',window.innerHeight+'px')}f();addEventListener('resize',f);addEventListener('orientationchange',function(){setTimeout(f,300)});addEventListener('pageshow',f);setTimeout(f,250);setTimeout(f,1000)})();</script>
 <style>html,body{height:var(--app-h,100dvh)!important}</style>
-<link rel="stylesheet" href="../games/ph.css?v=12"><style>#ovTitle{--phB:#4a4f9a;--phT:#dfe4ff;--phBg:#11132a;--phR:rgba(150,170,255,.12);--phC:rgba(220,226,255,.45);padding:0!important}</style><script src="../games/vs.js?v=2"></script><style>.field.dead canvas{filter:grayscale(1) brightness(.55) contrast(1.1);transition:filter 1.2s ease}
+<link rel="stylesheet" href="../games/ph.css?v=14"><style>#ovTitle{--phB:#4a4f9a;--phT:#dfe4ff;--phBg:#11132a;--phR:rgba(150,170,255,.12);--phC:rgba(220,226,255,.45);padding:0!important}</style><script src="../games/vs.js?v=2"></script><style>.field.dead canvas{filter:grayscale(1) brightness(.55) contrast(1.1);transition:filter 1.2s ease}
 .field.dead{animation:bkDead .6s ease-out}
 @keyframes bkDead{0%{transform:translate(0,0)}10%{transform:translate(-9px,6px)}20%{transform:translate(8px,-5px)}30%{transform:translate(-7px,4px)}45%{transform:translate(5px,-3px)}60%{transform:translate(-3px,2px)}80%{transform:translate(2px,-1px)}100%{transform:translate(0,0)}}
 .field.dead::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 60%,rgba(255,40,70,.35),rgba(0,0,0,.4) 70%);animation:bkRed 1.4s ease-out forwards;pointer-events:none;z-index:3}
@@ -203,10 +203,9 @@ function hud(){
 }
 function startGame(m){window.phLvTheme&&phLvTheme(m,$('field'));
   if(!vsOn()) pSet('diff',m); mode=m; stageN=1; score=0; lives=MODES[m].life; effects={}; pad.w=padBase; $('field').classList.remove('dead');
-  startStage(); state='play'; hide('ovMode'); hide('ovTitle'); hud(); unlock(); stagePop();
+  startStage(); state='play'; hide('ovMode'); hide('ovTitle'); hud(); unlock();
 }
 function startStage(){ wallY=Math.max(0,Math.min(80-Math.max(0,STAGES[(stageN-1)%STAGES.length].length-5)*22,(stageN-1)*8)); /* 줄이 많은 판은 덜 내려와서 시작 */ creep=0; padBase=padW(); resize(); buildStage(); balls=[newBall()]; drops=[]; shots=[]; effects={}; pad.w=padBase; hud(); } // 스테이지마다 벽돌이 패들 쪽으로 내려옴
-function stagePop(){ window.phPop&&phPop($('field'),'STAGE '+String(stageN).padStart(2,'0'),null,'stage','d2'); }
 function addScore(n){ score+=Math.round(n*MODES[mode].mul*(effects['2']?2:1)*scoreK()); hud(); }
 
 /* 입력 */
@@ -378,7 +377,7 @@ function stageClear(){
   if(window.PHVS&&PHVS.active){ if(stageN>=3){ state='over'; PHVS.claimWin(score); return; } PHVS.send({t:'atk'}); } /* 대전: 3스테이지 먼저 깨면 승리, 깰 때마다 상대에게 방해 아이템 */ if(PREF.fx){ $('flash').classList.remove('go'); void $('flash').offsetWidth; $('flash').classList.add('go'); }
   if(stageN>=STAGES.length){ allClear(); return; } /* 111스테이지 끝 */
   tune([[523,0],[659,90],[784,180],[1047,270,.25]]);
-  setTimeout(()=>{ if(state!=='clear') return; stageN++; startStage(); state='play'; stagePop(); },1100);
+  setTimeout(()=>{ if(state!=='clear') return; stageN++; startStage(); state='play'; },1100);
 }
 function allClear(){ /* 111스테이지 올 클리어: 불꽃놀이 + 무지개 글자 + 팡파레 */
   state='fin'; addScore(50000); balls=[]; drops=[]; shots=[];
@@ -387,7 +386,7 @@ function allClear(){ /* 111스테이지 올 클리어: 불꽃놀이 + 무지개 
   for(let i=0;i<4;i++) setTimeout(fire,i*140); const fw=setInterval(fire,320);
   tune([[523,0],[659,130],[784,260],[1047,390,.2],[784,600],[1047,730],[1319,860,.2],[1568,1060,.6],[2093,1700,.5]]);
   if(PREF.fx){ $('flash').classList.remove('go'); void $('flash').offsetWidth; $('flash').classList.add('go'); }
-  const d=document.createElement('div'); d.className='allc'; d.innerHTML='<div class="phPop stage d1"><b>ALL CLEAR!</b><span>111 STAGES · '+mode.toUpperCase()+'</span></div>'; $('field').appendChild(d);
+  const d=document.createElement('div'); d.className='allc'; d.innerHTML='<b>ALL CLEAR!</b><small>111 STAGES · '+mode.toUpperCase()+'</small>'; $('field').appendChild(d);
   setTimeout(()=>{ clearInterval(fw); d.remove(); state='over';
     lastWin={score,stage:111,mode,saved:false};
     $('overTitle').textContent='ALL CLEAR!'; $('overScore').textContent=score; $('overInfo').textContent=`STAGE 111 · ${mode.toUpperCase()}`; $('overInfo2').textContent='우주의 벽돌을 모두 깼어요! 무사히 지구로 귀환!';
@@ -511,13 +510,13 @@ function draw(){
   if(PREF.guide&&mode==='easy'&&state==='play') for(const b of balls) if(b.stuck) aimLine(b);
   // 공
   for(const b of balls){ if(b.pt==null) b.pt=Math.floor(Math.random()*PLANETS.length); planet(b); } // 공 = 행성
-  if(POP){ const a=(performance.now()-POP.at)/1100; if(a>=1) POP=null; else { const yy=pad.y-72-a*26; window.phPopDraw&&phPopDraw(x,POP.t,W/2,yy,20*U,POP.bad?'warn':'item',1-a*a); } } /* 아이템 이름: 공통 팝업 (d2 · 아이템 분홍 / 나쁜 아이템 빨강) */
+  if(POP){ const a=(performance.now()-POP.at)/1100; if(a>=1) POP=null; else { x.save(); x.globalAlpha=1-a*a; x.font='700 14px Silkscreen, monospace'; x.textAlign='center'; x.textBaseline='middle'; x.lineWidth=4; x.strokeStyle='#0a0c1d'; const yy=pad.y-30-a*26; x.strokeText(POP.t,W/2,yy); x.shadowColor=POP.c; x.shadowBlur=12; x.fillStyle=POP.bad?'#ff8aa0':POP.c; x.fillText(POP.t,W/2,yy); x.restore(); } }
   // 남은 효과 표시
   const now=performance.now(); let ex=6;
   for(const k in effects){ const it=ITEMS.find(i=>i.k===k); if(!it)continue; const left=Math.ceil((effects[k]-now)/1000);
     icon(k,ex+8,11,1.1,it.c); x.fillStyle=it.c; x.font='400 '+(14*U).toFixed(1)+'px "Jersey 15", sans-serif'; x.textAlign='left'; x.textBaseline='middle'; x.fillText(left,ex+17,12); ex+=38; }
   if(state==='play'&&balls.some(b=>b.stuck)){ x.fillStyle='rgba(220,226,255,'+(.5+.5*Math.sin(now/250))+')'; x.font='700 9px Silkscreen, monospace'; x.textAlign='center'; x.fillText('TAP TO LAUNCH',W/2,pad.y-40); }
-  if(state==='clear'&&window.phPopDraw){ phPopDraw(x,'STAGE CLEAR',W/2,H/2,28*U,'stage'); phPopDraw(x,'STAGE '+String(stageN).padStart(2,'0'),W/2,H/2+30*U,11*U,'stage'); }
+  if(state==='clear'){ x.save(); x.shadowColor='#9fb4ff'; x.shadowBlur=20; x.fillStyle='#fff'; x.font='700 20px Silkscreen, monospace'; x.textAlign='center'; x.fillText('STAGE CLEAR',W/2,H/2); x.restore(); }
 }
 
 /* UI */
@@ -526,13 +525,13 @@ function dim(on){ $('bPause').disabled=on; }
 const logo=$('logo'); 'BRICKS'.split('').forEach((ch,i)=>{const b=document.createElement('b');b.textContent=ch;b.style.color=['#e8284f','#f26a0d','#f2b000','#10b870','#00a8e0','#8a3cf0'][i];logo.append(b)});
 PHVS.init({id:'bricks',name:()=>localStorage.getItem('bricks-name')||'',setName:n=>localStorage.setItem('bricks-name',n),score:()=>score,
  start:()=>{['ovTitle','ovMode','ovOver','ovPause','ovRank'].forEach(hide);startGame('normal')},
- data:d=>{if(d.t==='atk'&&state==='play'){const bad=['N','F','R'][Math.floor(Math.random()*3)];take(bad);window.phPop&&phPop($('field'),'ATTACK!',null,'atk','d2');}},
+ data:d=>{if(d.t==='atk'&&state==='play'){const bad=['N','F','R'][Math.floor(Math.random()*3)];take(bad);}},
  stop:()=>{state='over'},leave:()=>toMenu()});
 $('bVs').onclick=()=>{unlock();PHVS.menu()};
 function markDiff(){ const last='normal'; /* 지난번 난이도 미리 선택 (없으면 NORMAL) */
   document.querySelectorAll('#ovMode [data-m]').forEach(b=>b.classList.toggle('last',b.dataset.m===last)); }
 $('bStart').onclick=()=>{unlock();markDiff();show('ovMode');const l=document.querySelector('#ovMode .last');if(l)try{l.focus({preventScroll:true})}catch(e){}};
-document.querySelectorAll('#ovMode [data-m]').forEach(b=>b.onclick=()=>phTut('bricks-tut',{"goal": "공을 튕겨서 벽돌을 모두 깨면 다음 스테이지!<br>공을 놓치면 목숨이 하나 줄어요.", "touch": [["드래그", "패들 옮기기"], ["탭", "공 발사"]], "pc": [["마우스 / ← →", "패들 옮기기"], ["클릭 / SPACE", "공 발사"]]},()=>startGame(b.dataset.m)));
+document.querySelectorAll('#ovMode [data-m]').forEach(b=>b.onclick=()=>phTut('bricks-tut',{"goal": "공을 튕겨 벽돌을 모두 깨요!<br>공을 놓치면 목숨이 하나 줄어요.", "touch": [["드래그", "패들 옮기기"], ["탭", "공 발사"]], "pc": [["마우스 / ← →", "패들 옮기기"], ["클릭 / SPACE", "공 발사"]]},()=>startGame(b.dataset.m)));
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>hide(b.dataset.close));
 function togglePause(){ if(window.PHVS&&PHVS.active&&state==='play') return;
   if(state==='play'){ state='pause'; show('ovPause'); }
@@ -592,5 +591,5 @@ if(location.hash==='#test') window.__t={clear:()=>{bricks=bricks.filter(b=>b.t==
 resize(); hud(); requestAnimationFrame(loop);
 })();
 </script>
-<script src="../games/ph.js?v=22"></script></body>
+<script src="../games/ph.js?v=24"></script></body>
 </html>
