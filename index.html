@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ko">
-<head><style>html.phL body{visibility:hidden}</style><script>/* 글꼴·최신 버전 확인될 때까지 잠깐 가리기 (옛 글꼴·옛 화면 깜빡임 방지) */(function(){var d=document.documentElement,n=2;d.classList.add("phL");function o(){d.classList.remove("phL")}window.__phDone=function(){if(--n<=0)o()};setTimeout(o,1200);function f(){try{var F=document.fonts;Promise.all([F.load('700 14px "Silkscreen"'),F.load('12px "Galmuri11"'),F.load('22px "Jersey 15"')]).then(function(){return F.ready}).then(window.__phDone,window.__phDone)}catch(e){o()}}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",f);else f()})();</script><script>/* 옛 버전 캐시 자동 갱신 */(function(){var V="1793530000";try{fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){var m=t.match(/var V="(\d+)"/);if(m&&m[1]!==V&&location.search.indexOf("v="+m[1])<0){location.replace(location.pathname+"?v="+m[1])}if(!(m&&m[1]!==V)&&window.__phDone)__phDone()}).catch(function(){window.__phDone&&__phDone()})}catch(e){window.__phDone&&__phDone()}})();</script>
+<head><style>html.phL body{visibility:hidden}</style><script>/* 글꼴·최신 버전 확인될 때까지 잠깐 가리기 (옛 글꼴·옛 화면 깜빡임 방지) */(function(){var d=document.documentElement,n=2;d.classList.add("phL");function o(){d.classList.remove("phL")}window.__phDone=function(){if(--n<=0)o()};setTimeout(o,1200);function f(){try{var F=document.fonts;Promise.all([F.load('700 14px "Silkscreen"'),F.load('12px "Galmuri11"'),F.load('22px "Jersey 15"')]).then(function(){return F.ready}).then(window.__phDone,window.__phDone)}catch(e){o()}}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",f);else f()})();</script><script>/* 옛 버전 캐시 자동 갱신 */(function(){var V="1793560000";try{fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){var m=t.match(/var V="(\d+)"/);if(m&&m[1]!==V&&location.search.indexOf("v="+m[1])<0){location.replace(location.pathname+"?v="+m[1])}if(!(m&&m[1]!==V)&&window.__phDone)__phDone()}).catch(function(){window.__phDone&&__phDone()})}catch(e){window.__phDone&&__phDone()}})();</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>BRICKS · 벽돌깨기</title>
@@ -293,7 +293,7 @@ function update(k){
     for(let i=0;i<n;i++){ step(b,k/n); if(b.dead)break; }
   }
   balls=balls.filter(b=>!b.dead);
-  if(!balls.length){ lives--; hud(); beep(160,.3,'sawtooth',.06); if(lives<=0) return gameOver(); balls=[newBall()]; effects={}; pad.w=padBase; drops=[]; shots=[]; }
+  if(!balls.length){ lives--; hud(); beep(160,.3,'sawtooth',.06); window.phHaptic&&phHaptic([40,30,40]); if(lives<=0) return gameOver(); balls=[newBall()]; effects={}; pad.w=padBase; drops=[]; shots=[]; }
   // 아이템 낙하
   for(const d of drops){ d.y+=1.6*k*paceK(); if(d.y+9>pad.y&&d.y<pad.y+pad.h&&Math.abs(d.x-pad.x)<pad.w/2+14){ take(d.k); d.dead=1; } if(d.y>H)d.dead=1; }
   drops=drops.filter(d=>!d.dead);
@@ -302,7 +302,7 @@ function update(k){
   // 3스테이지부터 벽돌이 조금씩 내려옴
   if(stageN>=3&&bricks.length){ creep+=k; const iv=60*Math.max(5,16-stageN); if(creep>=iv){ creep=0; wallY+=5; for(const br of bricks) br.y+=5; } }
   const low=bricks.reduce((m,br)=>br.t==='X'?m:Math.max(m,br.y+br.h),0);
-  if(low>pad.y-24){ wallY-=40; for(const br of bricks) br.y-=40; lives--; hud(); beep(160,.3,'sawtooth',.06); if(lives<=0) return gameOver(); }
+  if(low>pad.y-24){ wallY-=40; for(const br of bricks) br.y-=40; lives--; hud(); beep(160,.3,'sawtooth',.06); window.phHaptic&&phHaptic([40,30,40]); if(lives<=0) return gameOver(); }
   if(!bricks.some(b=>b.t!=='X')) stageClear();
 }
 function step(b,k){
@@ -347,7 +347,7 @@ function hitBrick(br){
     drops.push({x:br.x+br.w/2,y:br.y,k:it.k,c:it.c,t:it.t,bad:it.bad});
   }
 }
-function take(k){
+function take(k){ window.phHaptic&&phHaptic(14);
   const bad=k==='N'||k==='F'||k==='R'; POP={t:LBL[k]||'',c:(ITEMS.find(i=>i.k===k)||{}).c||'#fff',bad,at:performance.now()}; // 먹은 아이템 이름 띄우기
   if(bad) tune([[400,0],[300,80],[200,160]]); else tune([[660,0],[880,70],[1100,140]]);
   const until=performance.now()+(k==='S'?9000:k==='L'?7000:k==='2'?10000:k==='F'?8000:k==='N'?10000:k==='P'?7000:k==='R'?6000:12000);
@@ -365,14 +365,14 @@ function take(k){
   else if(k==='R'){ effects.R=until; } // 좌우 반대
   else if(k==='K'){ const c=bricks.filter(o=>o.t!=='X'); if(c.length){ const o=c[Math.floor(Math.random()*c.length)]; explode(o.x+o.w/2,o.y+o.h/2); } }
 }
-function explode(cx,cy){ // 폭탄: 주변 벽돌 함께 터짐
+function explode(cx,cy){ window.phHaptic&&phHaptic(40); // 폭탄: 주변 벽돌 함께 터짐
   if(PREF.fx) for(let i=0;i<14;i++) parts.push({x:cx,y:cy,vx:(Math.random()-.5)*5,vy:(Math.random()-.5)*5,l:28,c:i%2?'#ffd23f':'#ff4d4d'});
   beep(90,.25,'sawtooth',.08);
   const hit=bricks.filter(o=>!o.dead&&o.t!=='X'&&Math.abs(o.x+o.w/2-cx)<bw*1.6&&Math.abs(o.y+o.h/2-cy)<bh*1.8);
   for(const o of hit){ if(o.dead)continue; o.hp=1; hitBrick(o); }
 }
 function rescale(){ const s=speed(); for(const b of balls){ if(b.stuck)continue; const c=Math.hypot(b.vx,b.vy)||1; b.vx*=s/c; b.vy*=s/c; } }
-function stageClear(){
+function stageClear(){ window.phHaptic&&phHaptic([30,40,60]);
   state='clear'; addScore(1000*1);
   if(window.PHVS&&PHVS.active){ if(stageN>=3){ state='over'; PHVS.claimWin(score); return; } PHVS.send({t:'atk'}); } /* 대전: 3스테이지 먼저 깨면 승리, 깰 때마다 상대에게 방해 아이템 */ if(PREF.fx){ $('flash').classList.remove('go'); void $('flash').offsetWidth; $('flash').classList.add('go'); }
   if(stageN>=STAGES.length){ allClear(); return; } /* 111스테이지 끝 */
@@ -392,7 +392,7 @@ function allClear(){ /* 111스테이지 올 클리어: 불꽃놀이 + 무지개 
     $('overTitle').textContent='ALL CLEAR!'; $('overScore').textContent=score; $('overInfo').textContent=`STAGE 111 · ${mode.toUpperCase()}`; $('overInfo2').textContent='우주의 벽돌을 모두 깼어요! 무사히 지구로 귀환!';
     $('nameIn').value=localStorage.getItem('bricks-name')||''; $('bSave').textContent='OK'; $('bSave').disabled=false; show('ovOver'); dim(true); },5200);
 }
-function gameOver(){ $('overTitle').textContent='GAME OVER';
+function gameOver(){ window.phHaptic&&phHaptic([60,40,120]); $('overTitle').textContent='GAME OVER';
   if(window.PHVS&&PHVS.active){ state='over'; PHVS.over(score,true); return; }
   state='over'; sadEnd(); // 비참한 게임오버: 축 처지는 트롬본 + 화면이 잿빛으로
   $('field').classList.add('dead'); $('overInfo2').textContent=['우주 미아가 되었어요…','지구가 점점 멀어져요…','산소가 다 떨어졌어요…','통신이 끊겼어요… 응답하라…'][Math.floor(Math.random()*4)];
@@ -552,6 +552,7 @@ $('bSet').onclick=()=>{ unlock(); if(!window.phSettings) return; const vs=vsOn()
 function initSettings(){ if(!window.phPref||!window.phSettings) return;
   PREF.guide=!!phPref.get('guide',true); PREF.spd=Math.max(0,Math.min(2,phPref.get('speed',1)|0)); PREF.fx=!!phPref.get('fx',true); applyFx();
   phSettings.config({
+    hap:{get:()=>!window.phPref||phPref.get('hap',true)!==false,set:v=>{window.phPref&&phPref.set('hap',!!v)}},
     guide:{label:'공 방향선 · EASY',get:()=>PREF.guide,set:v=>{PREF.guide=!!v;pSet('guide',PREF.guide)}},
     speed:{get:()=>PREF.spd,set:v=>{PREF.spd=v|0;pSet('speed',PREF.spd);rescale()}},
     fx:{get:()=>PREF.fx,set:v=>{PREF.fx=!!v;pSet('fx',PREF.fx);applyFx()}} });
@@ -591,5 +592,5 @@ if(location.hash==='#test') window.__t={clear:()=>{bricks=bricks.filter(b=>b.t==
 resize(); hud(); requestAnimationFrame(loop);
 })();
 </script>
-<script src="../games/ph.js?v=33"></script></body>
+<script src="../games/ph.js?v=34"></script></body>
 </html>
