@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ko">
-<head><style>html.phL body{visibility:hidden}</style><script>try{localStorage.removeItem("phTutCfg:"+location.pathname)}catch(e){} /* 2026-11-01: HOW TO PLAY 최신 설명 */</script><script>/* 글꼴·최신 버전 확인될 때까지 잠깐 가리기 (옛 글꼴·옛 화면 깜빡임 방지) */(function(){var d=document.documentElement,n=2;d.classList.add("phL");function o(){d.classList.remove("phL")}window.__phDone=function(){if(--n<=0)o()};setTimeout(o,1200);function f(){try{var F=document.fonts;Promise.all([F.load('700 14px "Silkscreen"'),F.load('12px "Galmuri11"'),F.load('22px "Jersey 15"')]).then(function(){return F.ready}).then(window.__phDone,window.__phDone)}catch(e){o()}}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",f);else f()})();</script><script>/* 옛 버전 캐시 자동 갱신 */(function(){var V="1793523742";try{fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){var m=t.match(/var V="(\d+)"/);if(m&&m[1]!==V&&location.search.indexOf("v="+m[1])<0){location.replace(location.pathname+"?v="+m[1])}if(!(m&&m[1]!==V)&&window.__phDone)__phDone()}).catch(function(){window.__phDone&&__phDone()})}catch(e){window.__phDone&&__phDone()}})();</script>
+<head><style>html.phL body{visibility:hidden}</style><script>try{localStorage.removeItem("phTutCfg:"+location.pathname)}catch(e){} /* 2026-11-01: HOW TO PLAY 최신 설명 */</script><script>/* 글꼴·최신 버전 확인될 때까지 잠깐 가리기 (옛 글꼴·옛 화면 깜빡임 방지) */(function(){var d=document.documentElement,n=2;d.classList.add("phL");function o(){d.classList.remove("phL")}window.__phDone=function(){if(--n<=0)o()};setTimeout(o,1200);function f(){try{var F=document.fonts;Promise.all([F.load('700 14px "Silkscreen"'),F.load('12px "Galmuri11"'),F.load('22px "Jersey 15"')]).then(function(){return F.ready}).then(window.__phDone,window.__phDone)}catch(e){o()}}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",f);else f()})();</script><script>/* 옛 버전 캐시 자동 갱신 */(function(){var V="1793554601";try{fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){var m=t.match(/var V="(\d+)"/);if(m&&m[1]!==V&&location.search.indexOf("v="+m[1])<0){location.replace(location.pathname+"?v="+m[1])}if(!(m&&m[1]!==V)&&window.__phDone)__phDone()}).catch(function(){window.__phDone&&__phDone()})}catch(e){window.__phDone&&__phDone()}})();</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>BRICKS · 벽돌깨기</title>
@@ -141,7 +141,7 @@ html.pp .phS-show.hg>i::before{content:'';position:absolute;left:50%;top:-25px;w
     </div>
     <div class="ov" id="ovRank">
       <div class="sub">RANKING</div>
-      <div class="list" id="rankList"></div>
+      <div class="phLvTabs" id="rkLv"><button class="lv-e" data-l="easy">E</button><button class="lv-n" data-l="normal">N</button><button class="lv-h" data-l="hard">H</button><button class="lv-m" data-l="master">M</button></div><div class="list" id="rankList"></div>
       <button class="phBtn sub" data-close="ovRank">CLOSE</button>
     </div>
   </div></div>
@@ -599,13 +599,15 @@ $('bSave').onclick=async()=>{
   try{ await fetch(`${RANK_URL}?g=bricks&a=add&n=${encodeURIComponent(n)}&s=${rec.s}&v=${rec.v}&m=${rec.m}`); }catch(e){}
   $('bSave').textContent='✓'; openRank();
 };
+let RKL='normal',RROWS=null;const RKD=r=>(MODEK[r.m]||'NORMAL').toLowerCase(),rkLvSync=()=>document.querySelectorAll('#rkLv button').forEach(b=>b.classList.toggle('on',b.dataset.l===RKL)); /* 2026-11-02: 난도별 랭킹 */
+document.querySelectorAll('#rkLv button').forEach(b=>b.onclick=()=>{RKL=b.dataset.l;rkLvSync();if(RROWS)render(RROWS)});
 async function openRank(){
-  show('ovRank'); render(null,true);
-  try{ const j=await fetch(`${RANK_URL}?g=bricks`).then(r=>r.json()); render(j.top||[]); }catch(e){ render(local()); }
+  RKL=lastWin&&lastWin.mode?RKD({m:lastWin.mode}):(MODEK[mode]?mode:'normal');rkLvSync();RROWS=null;show('ovRank'); render(null,true);
+  try{ const j=await fetch(`${RANK_URL}?g=bricks`).then(r=>r.json()); RROWS=j.top||[]; }catch(e){ RROWS=local(); } render(RROWS);
 }
 function render(rows,loading){
   if(loading){ $('rankList').innerHTML='<span class="em"><span class="phLoad">LOADING</span></span>'; return; }
-  rows=rows.slice().sort((a,b)=>b.s-a.s);
+  rows=rows.filter(r=>RKD(r)===RKL).sort((a,b)=>b.s-a.s);
   const me=lastWin&&lastWin.saved?lastWin:null; let marked=false;
   $('rankList').innerHTML=rows.length?rows.map((r,i)=>{ const m=MODEK[r.m]||String(r.m).toUpperCase(); let cls='';
     if(me&&!marked&&r.n===me.n&&+r.s===me.score){cls='me';marked=true}
