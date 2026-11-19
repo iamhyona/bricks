@@ -141,7 +141,7 @@ html.pp .phS-show.hg>i::before{content:'';position:absolute;left:50%;top:-25px;w
     </div>
     <div class="ov" id="ovRank">
       <div class="sub">RANKING</div>
-      <div class="phLvTabs" id="rkLv"><button class="lv-e" data-l="easy">E</button><button class="lv-n" data-l="normal">N</button><button class="lv-h" data-l="hard">H</button><button class="lv-m" data-l="master">M</button></div><div class="list" id="rankList"></div>
+      <div class="list" id="rankList"></div>
       <button class="phBtn sub" data-close="ovRank">CLOSE</button>
     </div>
   </div></div>
@@ -607,7 +607,7 @@ async function openRank(){
 }
 function render(rows,loading){
   if(loading){ $('rankList').innerHTML='<span class="em"><span class="phLoad">LOADING</span></span>'; return; }
-  rows=rows.filter(r=>RKD(r)===RKL).sort((a,b)=>b.s-a.s);
+  rows=rows.slice().sort((a,b)=>b.s-a.s); /* 2026-11-19: 난이도 통합 랭킹 (배율 ×0.5/×1/×2/×3로 비교, 난이도는 뱃지로만) */
   const me=lastWin&&lastWin.saved?lastWin:null; let marked=false;
   $('rankList').innerHTML=rows.length?rows.map((r,i)=>{ const m=MODEK[r.m]||String(r.m).toUpperCase(); let cls='';
     if(me&&!marked&&r.n===me.n&&+r.s===me.score){cls='me';marked=true}
